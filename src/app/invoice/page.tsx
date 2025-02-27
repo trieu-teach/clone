@@ -2,17 +2,15 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import InvoiceList from "@/app/components/invoice/invoice-list";
-import SimpleInvoice from "@/app/components/invoice/invoice-simple";
-import InvoiceEmail from "@/app/components/invoice/invoice-email";
-import Header from "@/app/components/header";
+import InvoiceList from "@/components/invoice/invoice-list";
+import SimpleInvoice from "@/components/invoice/invoice-simple";
+import InvoiceEmail from "@/components/invoice/invoice-email";
 
 export default function InvoicesPage() {
   const [activeTab, setActiveTab] = useState("simple");
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header />
       <header className="border-b border-gray-800 p-4 text-white">
         <div className="container mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Invoices</h1>

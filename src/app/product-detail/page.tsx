@@ -54,7 +54,7 @@ export default function ProductDetail() {
                     <h4 className="font-semibold mt-4">Select Color</h4>
                     <div className="flex gap-2 mt-2">
                         {colors.map((color) => (
-                            <button key={color} className={`w-8 h-8 rounded-full ${selectedColor === color ? "ring-2 ring-white" : ""}`} style={{ backgroundColor: color }} onClick={() => setSelectedColor(color)}></button>
+                            <Button key={color} className={`w-8 h-8 rounded-full ${selectedColor === color ? "ring-2 ring-white" : ""}`} style={{ backgroundColor: color }} onClick={() => setSelectedColor(color)}></Button>
                         ))}
                     </div>
                     <h4 className="font-semibold mt-4">Price</h4>
@@ -90,9 +90,9 @@ export default function ProductDetail() {
                     </div>
                     <div className="mt-4">
                         {[...Array(5)].map((_, i) => (
-                            <button key={i} onClick={() => setRating(i + 1)}>
+                            <Button key={i} onClick={() => setRating(i + 1)}>
                                 <Star className={i < rating ? "text-yellow-400" : "text-gray-400"} />
-                            </button>
+                            </Button>
                         ))}
                         <span className="ml-2">{rating} / 5</span>
                     </div>

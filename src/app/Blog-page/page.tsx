@@ -1,14 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
-import { Leaf, ShoppingCart, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Header from "@/app/components/header";
-import Footer from "@/app/components/footer";
 
 export default function BlogPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header/>
 
       <main className="flex-1 bg-[url('/background-image.jpg')] bg-cover bg-center">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-100 bg-cover bg-center">
@@ -146,7 +140,6 @@ export default function BlogPage() {
 
        
       </main>
-      <Footer/>
     </div>
   );
 }
