@@ -24,7 +24,7 @@ export default function ProductDetail() {
     const colors = ["gold", "red", "gray"];
 
     return (
-        <div className="container mx-auto p-6">
+        <div className=" mx-auto p-6">
             <h2 className="text-3xl font-bold text-center bg-black text-white py-4 rounded-lg">Product Details</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
                 <div className="w-full h-[500px] bg-gray-300 flex items-center justify-center rounded-lg overflow-hidden">

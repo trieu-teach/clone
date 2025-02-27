@@ -113,8 +113,8 @@ export default function ShoppingCart() {
           </div>
 
           <div className="flex justify-between mt-6">
-            <Button onClick={() => (window.location.href = "/guest/skinstore-page")}>Continue Shopping</Button>
-            <Button onClick={() => (window.location.href = "/guest/checkout")}>Proceed to Checkout</Button>
+            <Button onClick={() => (window.location.href = "/skinstore-page")}>Continue Shopping</Button>
+            <Button onClick={() => (window.location.href = "/checkout")}>Proceed to Checkout</Button>
           </div>
         </CardContent>
       </Card>

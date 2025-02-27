@@ -12,7 +12,7 @@ export default function InvoicesPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <header className="border-b border-gray-800 p-4 text-white">
-        <div className="container mx-auto flex items-center justify-between">
+        <div className=" mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Invoices</h1>
           <div className="flex gap-2">
             {["list", "simple", "email"].map((tab) => (
@@ -34,7 +34,7 @@ export default function InvoicesPage() {
         </div>
       </header>
 
-      <main className="container mx-auto p-6 text-white">
+      <main className=" mx-auto p-6 text-white">
         {activeTab === "simple" && <SimpleInvoice />}
         {activeTab === "list" && <InvoiceList />}
         {activeTab === "email" && <InvoiceEmail />}

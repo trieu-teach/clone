@@ -6,7 +6,7 @@ export default function BlogPage() {
 
       <main className="flex-1 bg-[url('/background-image.jpg')] bg-cover bg-center">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-100 bg-cover bg-center">
-          <div className="container px-4 md:px-6">
+          <div className=" px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
@@ -22,7 +22,7 @@ export default function BlogPage() {
 
       {/* Thêm bảng mục lục */}
       <section className="w-full py-4 bg-white">
-          <div className="container px-4 md:px-6 flex justify-center">
+          <div className=" px-4 md:px-6 flex justify-center">
             <div className="bg-gray-200 p-6 rounded-lg shadow-lg w-full max-w-md">
               <h2 className="text-xl font-bold mb-4 text-center">Mục Lục</h2>
               <ul className="list-disc pl-6 space-y-2">
