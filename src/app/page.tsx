@@ -2,6 +2,11 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+import type { Metadata } from 'next'
+export const metadata: Metadata = {
+  title: 'Trang chủ',
+}
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -99,9 +104,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-      
-        
       </main>
     </div>
   );

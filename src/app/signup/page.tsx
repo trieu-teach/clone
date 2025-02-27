@@ -22,6 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Metadata } from 'next'
+export const metadata: Metadata = {
+  title: 'Đăng kí',
+}
 
 // Patterns for validation
 const EMAIL = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;

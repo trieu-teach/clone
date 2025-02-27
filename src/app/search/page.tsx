@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { ChevronDown, Grid, ListIcon, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -149,11 +148,10 @@ export default function Page() {
                     {filter.options.map((option, index) => (
                       <button
                         key={index}
-                        className={`w-full text-left p-2 rounded transition-colors ${
-                          selectedFilters[filter.id] === option
+                        className={`w-full text-left p-2 rounded transition-colors ${selectedFilters[filter.id] === option
                             ? "bg-indigo-600 hover:bg-indigo-700 text-white"
                             : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                        }`}
+                          }`}
                         onClick={() => handleSelectOption(filter.id, option)}
                       >
                         {option}
@@ -198,9 +196,8 @@ export default function Page() {
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className={`bg-white shadow rounded-lg overflow-hidden transition-transform hover:scale-[1.02] ${
-                    viewMode === "list" ? "flex" : ""
-                  }`}
+                  className={`bg-white shadow rounded-lg overflow-hidden transition-transform hover:scale-[1.02] ${viewMode === "list" ? "flex" : ""
+                    }`}
                 >
                   <div className={viewMode === "list" ? "w-1/3" : ""}>
                     <Image

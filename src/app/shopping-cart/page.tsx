@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash, Pencil } from "lucide-react";
+import { Trash, Pencil } from "lucide-react"
 
 interface CartItem {
   id: number;

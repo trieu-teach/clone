@@ -1,6 +1,11 @@
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import type { Metadata } from 'next'
+export const metadata: Metadata = {
+  title: 'Cửa Hàng',
+}
+
 
 const products = [
   { id: 1, name: "Hydrating Serum", price: 49.99, image: "" },

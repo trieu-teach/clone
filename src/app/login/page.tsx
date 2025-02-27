@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import type { Metadata } from 'next'
+export const metadata: Metadata = {
+  title: 'Đăng nhập',
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
