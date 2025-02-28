@@ -1,5 +1,5 @@
 import { connectDB } from '@/lib/mongodb';
-import CustomerModel from "@/models/customer";
+import OrderModel from "@/models/order";
 
 const GET = async (req: Request) => {
     try {
@@ -12,26 +12,26 @@ const GET = async (req: Request) => {
         const skip = (page - 1) * limit;
 
         if (id) {
-            const customer = await CustomerModel.findById(id);
-            if (!customer) {
-                return new Response(JSON.stringify({ message: "Customer not found" }), {
+            const order = await OrderModel.findById(id);
+            if (!order) {
+                return new Response(JSON.stringify({ message: "Order not found" }), {
                     status: 404,
                     headers: { 'Content-Type': 'application/json' },
                 });
             }
-            return new Response(JSON.stringify(customer), {
+            return new Response(JSON.stringify(order), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        const totalDocs = await CustomerModel.countDocuments();
-        const customers = await CustomerModel.find()
+        const totalDocs = await OrderModel.countDocuments();
+        const orders = await OrderModel.find()
             .skip(skip)
             .limit(limit);
 
         return new Response(JSON.stringify({
-            data: customers,
+            data: orders,
             page,
             limit,
             totalPages: Math.ceil(totalDocs / limit),

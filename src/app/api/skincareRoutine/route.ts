@@ -1,5 +1,5 @@
 import { connectDB } from '@/lib/mongodb';
-import CustomerModel from "@/models/customer";
+import SkincareRoutineModel from "@/models/skincareRoutine";
 
 const GET = async (req: Request) => {
     try {
@@ -12,26 +12,26 @@ const GET = async (req: Request) => {
         const skip = (page - 1) * limit;
 
         if (id) {
-            const customer = await CustomerModel.findById(id);
-            if (!customer) {
-                return new Response(JSON.stringify({ message: "Customer not found" }), {
+            const skincareRoutine = await SkincareRoutineModel.findById(id);
+            if (!skincareRoutine) {
+                return new Response(JSON.stringify({ message: "Skincare routine not found" }), {
                     status: 404,
                     headers: { 'Content-Type': 'application/json' },
                 });
             }
-            return new Response(JSON.stringify(customer), {
+            return new Response(JSON.stringify(skincareRoutine), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        const totalDocs = await CustomerModel.countDocuments();
-        const customers = await CustomerModel.find()
+        const totalDocs = await SkincareRoutineModel.countDocuments();
+        const skincareRoutines = await SkincareRoutineModel.find()
             .skip(skip)
             .limit(limit);
 
         return new Response(JSON.stringify({
-            data: customers,
+            data: skincareRoutines,
             page,
             limit,
             totalPages: Math.ceil(totalDocs / limit),
