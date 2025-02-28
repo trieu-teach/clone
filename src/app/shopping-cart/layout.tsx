@@ -1,11 +1,10 @@
 
-export async function generateMetadata({ params }: { params: { title: string } }) {
+import type { Metadata } from 'next'
+export async function generateMetadata(): Promise<Metadata>  {
   return {
-    title: params.title || "Giỏ hàng",
+    title: 'Giỏ hàng',
   }
 }
-
-
 
 export default function RootLayout({
   children,

@@ -1,11 +1,9 @@
-
-export async function generateMetadata({ params }: { params: { title: string } }) {
+import type { Metadata } from 'next'
+export async function generateMetadata(): Promise<Metadata>  {
   return {
-    title: params.title || "tìm kiếm",
+  title: 'Tìm kiếm',
   }
 }
-
-
 
 export default function RootLayout({
   children,
