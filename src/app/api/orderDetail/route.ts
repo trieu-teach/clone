@@ -1,6 +1,6 @@
 import { connectDB } from '@/lib/mongodb';
 import OrderDetailModel from "@/models/orderDetail";
-
+import { SortOrder } from 'mongoose';
 const GET = async (req: Request) => {
     try {
         await connectDB();
@@ -8,6 +8,10 @@ const GET = async (req: Request) => {
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '10', 10);
         const id = searchParams.get('id');
+        const search = searchParams.get('search') || '';
+        const sortField = searchParams.get('sortField') || 'createdAt';
+        const sortOrder = (searchParams.get('sortOrder') || 'desc') as SortOrder;
+
 
         const skip = (page - 1) * limit;
 
@@ -25,8 +29,20 @@ const GET = async (req: Request) => {
             });
         }
 
-        const totalDocs = await OrderDetailModel.countDocuments();
-        const orderDetails = await OrderDetailModel.find()
+        const query = search
+            ? {
+                $or: [
+                    { orderId: { $regex: search, $options: 'i' } },
+                    { productId: { $regex: search, $options: 'i' } },
+                ],
+            }
+            : {};
+
+        const totalDocs = await OrderDetailModel.countDocuments(query);
+        const orderDetails = await OrderDetailModel.find(query)
+            .sort({
+                [sortField]: sortOrder,
+            })
             .skip(skip)
             .limit(limit);
 

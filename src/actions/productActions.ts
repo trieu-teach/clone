@@ -6,59 +6,86 @@ import { ProductSchema, zProductSchemaUdate } from '@/schemas/productSchema';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 
-export async function createProduct(formData: FormData) {
+const createProduct = async (prevState: any, formData: FormData) => {
   try {
-    const rawData = Object.fromEntries(formData.entries());
-    const productData = ProductSchema.parse(rawData); // Zod validation
-
+    const rawData = Object.fromEntries(formData);
+    const productData = ProductSchema.parse(rawData);
     await connectDB();
     await ProductModel.create(productData);
-    revalidatePath('/products'); // Revalidate the product list page
-    return { message: 'Product created successfully!' };
+    revalidatePath('/product/product-manament');
+    return { message: 'Product created successfully!', success: true };
   } catch (error) {
-      if (error instanceof ZodError) {
-        return { error: error.flatten() };
+    if (error instanceof ZodError) {
+      console.log(error.flatten().fieldErrors);
+      const flattenedError = error.flatten().fieldErrors;
+      const firstErrorKey = Object.keys(flattenedError)[0]; // Get the first key
+
+      if (firstErrorKey) {
+        const firstErrorMessage = flattenedError[firstErrorKey]?.[0];
+        if (firstErrorMessage) {
+          return {
+            message: `${firstErrorKey}: ${firstErrorMessage}`,
+            success: false,
+            formData,
+          };
+        }
       }
-      return { error: 'Failed to create product.' }; // Generic error message
+      return { message: "Validation error occurred.", success: false, formData }; //fallback message
+    }
+    return { message: "Failed to create product.", success: false, formData };
+  }
+}
+const updateProduct = async ( formData: FormData) => {
+  try {
+    const rawData = Object.fromEntries(formData.entries());
+    const productData = zProductSchemaUdate.parse(rawData);
+    const { _id, ...updateData } = productData;
+
+    await connectDB();
+    const updatedProduct = await ProductModel.findByIdAndUpdate(_id, updateData, { new: true });
+
+    if (!updatedProduct) {
+      return { error: 'Product not found', success: false };
+    }
+    revalidatePath('/product/product-manament');
+    return { message: 'Product updated successfully!', success: true };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return { error: error.flatten(), success: false };
+    }
+    return { error: 'Failed to update product.', success: false };
   }
 }
 
-export async function updateProduct(formData: FormData) {
-    try {
-        const rawData = Object.fromEntries(formData.entries());
-        const productData = zProductSchemaUdate.parse(rawData);
-        const { _id, ...updateData } = productData;
-
-        await connectDB();
-        const updatedProduct = await ProductModel.findByIdAndUpdate(_id, updateData, { new: true });
-
-        if (!updatedProduct) {
-            return { error: 'Product not found' };
-        }
-        revalidatePath('/products'); // Or revalidate a specific product detail page
-        revalidatePath(`/products/${_id}`);
-        return { message: 'Product updated successfully!' };
-    } catch (error) {
-        if (error instanceof ZodError) {
-           return { error: error.flatten() };
-        }
-        return { error: 'Failed to update product.' };
+const toggleActiveStatus = async (productId: string) => {
+  try {
+    await connectDB();
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      return { error: 'Product not found', success: false };
     }
+    product.is_active = !product.is_active;
+    await product.save();
+    revalidatePath('/product/product-manament');
+    return { message: 'Product status updated successfully!', success: true };
+  } catch (error) {
+    return { error: 'Failed to update product status.', success: false };
+  }
 }
 
-export async function deleteProduct(productId: string) { // Note: Pass ID directly
+const deleteProduct = async (productId: string) => {
   try {
     await connectDB();
     const deletedProduct = await ProductModel.findByIdAndDelete(productId);
 
     if (!deletedProduct) {
-      return { error: 'Product not found' };
+      return { error: 'Product not found', success: false };
     }
-
-    revalidatePath('/products');
-    return { message: 'Product deleted successfully!' };
-} catch (error) {
-  return { error: 'Failed to delete product.' };
+    revalidatePath('/product/product-manament');
+    return { message: 'Product deleted successfully!', success: true };
+  } catch (error) {
+    return { error: 'Failed to delete product.', success: false };
+  }
 }
-}
 
+export { createProduct, updateProduct, toggleActiveStatus, deleteProduct }

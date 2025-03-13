@@ -5,10 +5,14 @@ const GET = async (req: Request) => {
     try {
         await connectDB();
         const { searchParams } = new URL(req.url);
-        const page = parseInt(searchParams.get('page') || '1', 10);
-        const limit = parseInt(searchParams.get('limit') || '10', 10);
+        const page = parseInt(searchParams.get('page') ?? '1', 10);
+        const limit = parseInt(searchParams.get('limit') ?? '10', 10);
         const id = searchParams.get('id');
-
+        const sortBy = searchParams.get('sortBy') ?? 'createdAt';
+        const sortOrder = searchParams.get('sortOrder') ?? 'desc';
+        const name = searchParams.get('name');
+        const sort = sortOrder === 'asc' ? 1 : -1;
+        const filter: any = {};
         const skip = (page - 1) * limit;
 
         if (id) {
@@ -25,8 +29,14 @@ const GET = async (req: Request) => {
             });
         }
 
-        const totalDocs = await SkinTypeModel.countDocuments();
-        const skinTypes = await SkinTypeModel.find()
+        if (name) {
+            filter.name = { $regex: name, $options: 'i' };
+        }
+
+        const totalDocs = await SkinTypeModel.countDocuments(filter);
+        const skinTypes = await SkinTypeModel.find(filter)
+            .sort({ [sortBy]: sort })
+
             .skip(skip)
             .limit(limit);
 

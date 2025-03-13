@@ -1,12 +1,24 @@
 import { connectDB } from '@/lib/mongodb';
 import PromotionModel from "@/models/promotion";
+import { FilterQuery, SortOrder } from 'mongoose';
 
 const GET = async (req: Request) => {
     try {
         await connectDB();
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
-        const limit = parseInt(searchParams.get('limit') || '10', 10);
+        const limit = parseInt(searchParams.get('limit') || '10', 10);        
+        const sortBy = searchParams.get('sortBy') || 'createdAt';
+        const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
+        const nameFilter = searchParams.get('name');
+        const isActiveFilter = searchParams.get('is_active');
+        const filter: FilterQuery<typeof PromotionModel> = {};
+        if (nameFilter) {
+            filter.name = { $regex: nameFilter, $options: 'i' };
+        }
+        if (isActiveFilter) {
+            filter.is_active = isActiveFilter === 'true';
+        }
         const id = searchParams.get('id');
 
         const skip = (page - 1) * limit;
@@ -25,8 +37,14 @@ const GET = async (req: Request) => {
             });
         }
 
-        const totalDocs = await PromotionModel.countDocuments();
-        const promotions = await PromotionModel.find()
+        const sort: { [key: string]: SortOrder } = {
+            [sortBy]: sortOrder as SortOrder,
+            _id: 1 as SortOrder,
+        };
+
+        const totalDocs = await PromotionModel.countDocuments(filter);
+        const promotions = await PromotionModel.find(filter)
+            .sort(sort)
             .skip(skip)
             .limit(limit);
 
@@ -35,6 +53,8 @@ const GET = async (req: Request) => {
             page,
             limit,
             totalPages: Math.ceil(totalDocs / limit),
+            sortBy,
+            sortOrder,
             totalDocs,
         }), {
             status: 200,

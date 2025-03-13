@@ -55,15 +55,6 @@ export default function Header() {
 
       {/* Navigation */}
       <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-        {/* Nút Trang Chủ */}
-        {link.map((item, index) => (
-          <Link
-            className="text-sm font-medium hover:bg-gray-300 focus:bg-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 px-2 py-1 rounded-md"
-            href={item.link}
-            key={index}>
-            {item.title}
-          </Link>
-        ))}
 
         {/* Tìm kiếm và Button */}
         <div className="relative flex items-center">
@@ -82,6 +73,15 @@ export default function Header() {
             </Button>
           </Link>
         </div>
+        {/* Nút Trang Chủ */}
+        {link.map((item, index) => (
+          <Link
+            className="text-sm font-medium hover:bg-gray-300 focus:bg-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 px-2 py-1 rounded-md"
+            href={item.link}
+            key={index}>
+            {item.title}
+          </Link>
+        ))}
 
         {/* Giỏ hàng */}
         <Link

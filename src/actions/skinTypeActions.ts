@@ -52,12 +52,13 @@ export async function deleteSkinType(skinTypeId: string) { // Note: Pass ID dire
     const deletedSkinType = await SkinTypeModel.findByIdAndDelete(skinTypeId);
 
     if (!deletedSkinType) {
-      return { error: 'Skin type not found' };
-    }
-
+        return { error: 'Skin type not found' };    }
     revalidatePath('/skinTypes');
     return { message: 'Skin type deleted successfully!' };
 } catch (error) {
-  return { error: 'Failed to delete skin type.' };
+    if (error instanceof ZodError) {
+       return { error: error.flatten() };
+    }
+    return { error: 'Failed to delete skin type.' };
 }
 }

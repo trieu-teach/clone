@@ -50,3 +50,7 @@ repomix-output.txt
 
 #vscode config
 /.vscode/
+
+#...
+*.rar
+*.zip

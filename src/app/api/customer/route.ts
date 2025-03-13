@@ -1,13 +1,17 @@
 import { connectDB } from '@/lib/mongodb';
 import CustomerModel from "@/models/customer";
+import { SortOrder } from 'mongoose';
 
 const GET = async (req: Request) => {
     try {
         await connectDB();
         const { searchParams } = new URL(req.url);
+
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '10', 10);
         const id = searchParams.get('id');
+        const search = searchParams.get('search') || '';
+        const sortOrder = (searchParams.get('sortOrder') || 'desc') as SortOrder;
 
         const skip = (page - 1) * limit;
 
@@ -25,8 +29,20 @@ const GET = async (req: Request) => {
             });
         }
 
-        const totalDocs = await CustomerModel.countDocuments();
-        const customers = await CustomerModel.find()
+        const query = search
+            ? {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                ],
+            }
+            : {};
+
+        const totalDocs = await CustomerModel.countDocuments(query);
+        const customers = await CustomerModel.find(query)
+            .sort({
+                createdAt: sortOrder,
+            })
             .skip(skip)
             .limit(limit);
 
