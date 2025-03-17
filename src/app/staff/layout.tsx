@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AdminSidebar } from "@/components/staff/admin-sidebar"
+import { Toaster } from "@/components/ui/sonner"
 
 
 const LexendSans = Lexend({ subsets: ['latin', 'latin-ext', 'vietnamese'] });
@@ -34,10 +35,11 @@ export default function RootLayout({
                 <AdminSidebar />
                 <section className="flex-1 w-0 min-w-0 overflow-y-auto">
                   <main className="container mx-auto">{children}</main>
+                  <Toaster className="bg-slate-600" />
                 </section>
               </div>
             </SidebarProvider>
-            <div className="fixed inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"/>
+            <div className="fixed inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]" />
           </ThemeProvider>
         </div>
       </body>

@@ -66,16 +66,23 @@ interface FormState {
 }
 
 
-type Selections = {
-    value: string;
-    name: string;
-  };
-  
-  type formField<T> = {
-    name: keyof z.infer<typeof T>;
+type Selection = {
+    value: string | number;
     label: string;
-    type: string;
-    placeholder?: string;
-    selections?: Selections[];
-  };
+};
 
+type formField<T> = {
+    name: keyof T;
+    label: string;
+    type: HTMLInputTypeAttribute;
+    placeholder?: string;
+    selections?: Selection[];
+    CreateAction?: CreateAction
+};
+type ActionReturn = {
+    message: string;
+    success: boolean;
+    formData?: FormData;
+  }
+
+  type CreateAction = (prevState: any, formData: FormData) => Promise<ActionReturn>

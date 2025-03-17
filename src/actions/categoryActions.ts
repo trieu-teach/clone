@@ -1,25 +1,44 @@
 'use server';
 
 import { connectDB } from '@/lib/mongodb';
+import { ActionReturn } from '@next-server-actions/types';
 import CategoryModel from "@/models/category";
 import { CategorySchema, zCategorySchemaUdate } from '@/schemas/categorySchema';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 
-export async function createCategory(formData: FormData) {
+export async function createCategory(prevState: any, formData: FormData):Promise<ActionReturn> {
   try {
-    const rawData = Object.fromEntries(formData.entries());
-    const categoryData = CategorySchema.parse(rawData); // Zod validation
-
+    const rawData = Object.fromEntries(formData);
+    const categoryData = CategorySchema.parse(rawData);
+    console.log(categoryData);
     await connectDB();
-    await CategoryModel.create(categoryData);
-    revalidatePath('/categories'); // Revalidate the category list page
-    return { message: 'Category created successfully!' };
+    const createdCategory = await CategoryModel.create(categoryData);
+    const categoryId = createdCategory._id.toString();
+    formData.append('categoryId', categoryId);
+    revalidatePath('/categories');
+
+    return { message: 'Category created successfully!', success: true, formData: formData }; //!!!!
   } catch (error) {
-      if (error instanceof ZodError) {
-        return { error: error.flatten() };
+    if (error instanceof ZodError) {
+      const flattenedError = error.flatten().fieldErrors;
+      const firstErrorKey = Object.keys(flattenedError)[0]; // Get the first key
+
+      if (firstErrorKey) {
+        const firstErrorMessage = flattenedError[firstErrorKey]?.[0];
+        if (firstErrorMessage) {
+          return {
+            message: `${firstErrorKey}: ${firstErrorMessage}`,
+            success: false,
+            formData,
+          };
+        }
       }
-      return { error: 'Failed to create category.' }; // Generic error message
+      return { message: "Validation error occurred.", success: false, formData }; //fallback message
+    }
+    return { message: "Failed to create category.", success: false, formData };
+
+
   }
 }
 
