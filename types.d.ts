@@ -1,4 +1,4 @@
-import { Customer } from "@/schemas/customerSchema";
+import { Customer, CustomerSchema } from "@/schemas/customerSchema";
 
 // Update the DataTableProps type
 interface FilterDataTableProps<TData, TValue> {
@@ -83,6 +83,8 @@ type ActionReturn = {
     message: string;
     success: boolean;
     formData?: FormData;
-  }
+}
 
-  type CreateAction = (prevState: any, formData: FormData) => Promise<ActionReturn>
+type CreateAction = (prevState: any, formData: FormData) => Promise<ActionReturn>
+
+type SessionCustomer = z.infer<typeof CustomerSchema.pick<{ name: true; email: true }>>

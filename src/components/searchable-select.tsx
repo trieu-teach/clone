@@ -23,30 +23,30 @@ interface SearchableSelectProps {
     placeholder?: string
     className?: string
     createNewSelection?: CreateAction
-  }
-export default function searchableSelect({ selections, createNewSelection, value, onChange, className, placeholder } : SearchableSelectProps): JSX.Element {
+}
+export default function searchableSelect({ selections, createNewSelection, value, onChange, className, placeholder }: SearchableSelectProps): JSX.Element {
     const [open, setOpen] = useState(false)
     const [internalValue, setInternalValue] = useState(value || "")
     const [inputValue, setInputValue] = useState("")
-    const [selectionsState, setSelectionsState] = useState<Selection[]>(selections)
+    //const [selectionsState, setSelectionsState] = useState<Selection[]>(selections) // Removed this line
     const [state, formAction, isPending] = useActionState(createNewSelection || ((prevState: any, formData: FormData) => Promise.resolve(initialState)), initialState);
-    
 
-  // Update internal value when external value changes
-  useEffect(() => {
-    if (value !== undefined) {
-      setInternalValue(value)
-    }
-  }, [value])
 
-  // Handle value change
-  const handleValueChange = useCallback(
-    (newValue: string) => {
-      setInternalValue(newValue)
-      onChange?.(newValue)
-    },
-    [onChange],
-  )
+    // Update internal value when external value changes
+    useEffect(() => {
+        if (value !== undefined) {
+            setInternalValue(value)
+        }
+    }, [value])
+
+    // Handle value change
+    const handleValueChange = useCallback(
+        (newValue: string) => {
+            setInternalValue(newValue)
+            onChange?.(newValue)
+        },
+        [onChange],
+    )
 
     const handleCreateNew = async () => {
         if (!inputValue) return
@@ -67,14 +67,14 @@ export default function searchableSelect({ selections, createNewSelection, value
         }
 
         // Add to the list
-        setSelectionsState((prev) => [...prev, newSelection])
+        //setSelectionsState((prev) => [...prev, newSelection]) // Removed this line
         // Select the new value
         setInputValue("")
         setOpen(false)
     }
     // Get the current value to display
     const displayValue = useMemo(() => {
-      return selections?.find((option) => option.value === internalValue)?.label || ""
+        return selections?.find((option) => option.value === internalValue)?.label || ""
     }, [internalValue, selections])
 
     return (
@@ -87,14 +87,19 @@ export default function searchableSelect({ selections, createNewSelection, value
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                    <Command>
+                    <Command
+                        filter={(_, search, keywords) => {
+                            return keywords?.map((keyword) => keyword.toLocaleLowerCase().includes(search.toLocaleLowerCase())).some((result) => !!result) ? 1 : 0;
+                        }}
+                    >
                         <CommandInput placeholder="Search seletion..." value={inputValue} onValueChange={setInputValue} />
                         <CommandList>
                             <CommandEmpty>No seletion found.</CommandEmpty>
                             <CommandGroup>
-                                {selectionsState.map((seletion) => (
+                                {selections.map((seletion) => ( // Changed selectionsState to selections
                                     <CommandItem
-                                        key={seletion.value.toString()}
+                                        keywords={[seletion.label.toString()]}
+                                        key={seletion.value}
                                         value={seletion.value?.toString()}
                                         onSelect={(currentValue) => {
                                             handleValueChange(currentValue === internalValue ? "" : currentValue)
@@ -111,7 +116,7 @@ export default function searchableSelect({ selections, createNewSelection, value
                             {createNewSelection && (
                                 <CommandGroup>
                                     {inputValue &&
-                                        !selectionsState.some((seletion) => seletion.label.toLowerCase() === inputValue.toLowerCase()) && (
+                                        !selections.some((seletion) => seletion.label.toLowerCase() === inputValue.toLowerCase()) && ( // Changed selectionsState to selections
                                             <CommandItem onSelect={handleCreateNew} className="text-primary" disabled={isPending}>
                                                 <PlusCircle className="mr-2 h-4 w-4" />
                                                 Create "{inputValue}"
