@@ -6,7 +6,7 @@ import { createColumns } from "@/components/data-table/columns";
 import { Badge } from "@/components/ui/badge";
 import { Staff } from "@/schemas/staffSchema";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CreateUserForm } from "@/components/forms/staff/createStaffForm";
+import { CreateUserForm } from "@/components/forms/staff/create-staff-form";
 import { TablePagination } from "@/components/data-table/table-pagination";
 import { RowSelectionState, TablePaginationProps } from "@next-server-actions/types";
 import { deleteStaff, toggleActiveStatus } from "@/actions/staffActions";

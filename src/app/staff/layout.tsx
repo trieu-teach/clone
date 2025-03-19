@@ -4,8 +4,11 @@ import { Lexend } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { AdminSidebar } from "@/components/staff/admin-sidebar"
 import { Toaster } from "@/components/ui/sonner"
+import AdminSidebarRoute from "@/components/staff/admin-sidebar-route"
+import { SessionProvider } from "next-auth/react";
+import { Session } from "next-auth"
+import { AuthProvider } from "./provider"
 
 
 const LexendSans = Lexend({ subsets: ['latin', 'latin-ext', 'vietnamese'] });
@@ -21,28 +24,30 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode,
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning={true}>
-      <body
-        className={`${LexendSans.className} antialiased flex flex-col min-h-full`}
-      >
-        <div className=" absolute inset-0">
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            <SidebarProvider>
-              <div className="flex min-h-screen w-full">
-                <AdminSidebar />
-                <section className="flex-1 w-0 min-w-0 overflow-y-auto">
-                  <main className="container mx-auto">{children}</main>
-                  <Toaster className="bg-slate-600" />
-                </section>
-              </div>
-            </SidebarProvider>
-            <div className="fixed inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]" />
-          </ThemeProvider>
-        </div>
-      </body>
+      <AuthProvider>
+        <body
+          className={`${LexendSans.className} antialiased flex flex-col min-h-full`}
+        >
+          <div className=" absolute inset-0">
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+              <SidebarProvider>
+                <div className="flex min-h-screen w-full">
+                  <AdminSidebarRoute />
+                  <section className="flex-1 w-0 min-w-0 overflow-y-auto">
+                    <main className="container mx-auto">{children}</main>
+                    <Toaster className="bg-slate-600" />
+                  </section>
+                </div>
+              </SidebarProvider>
+              <div className="fixed inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]" />
+            </ThemeProvider>
+          </div>
+        </body>
+      </AuthProvider>
     </html>
   )
 }

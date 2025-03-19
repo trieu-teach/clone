@@ -13,7 +13,6 @@ type AddProductDialogProps = {
 
 export function AddProductDialog({ onProductAdded }: AddProductDialogProps) {
   const [open, setOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleProductAdded = () => {
     onProductAdded?.();

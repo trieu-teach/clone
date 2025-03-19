@@ -8,8 +8,8 @@ export const useToast = (message: string) => {
     return toast(message, {
       description: `${formattedDate(now)} at ${formattedTime(now)}`,
       action: {
-        label: "Undo",
-        onClick: () => console.log("Undo"),
+        label: "Close",
+        onClick: () => toast.dismiss()
       },
     })
   }

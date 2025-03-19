@@ -3,7 +3,10 @@
 import { connectDB } from '@/lib/mongodb';
 import StaffModel from "@/models/staff";
 import { StaffSchema, zStaffSchemaUdate } from '@/schemas/staffSchema';
+import { ActionReturn } from '@next-server-actions/types';
+import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { ZodError } from 'zod';
 
 const createStaff = async (prevState: any, formData: FormData) => {
@@ -35,6 +38,51 @@ const createStaff = async (prevState: any, formData: FormData) => {
     return { message: "Failed to create staff.", success: false, formData };
   }
 }
+
+const register = async (prevState: any, formData: FormData): Promise<ActionReturn> => {
+  try {
+    const rawData = Object.fromEntries(formData);
+    // type convertion
+    const convertedData = {
+      ...rawData,
+      role: "staff",
+      date_of_birth: new Date(rawData.date_of_birth as string),
+      is_active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const customerData = StaffSchema.parse(convertedData);
+    await connectDB();
+    const userFound = await StaffModel.findOne({ email: customerData.email });
+    if (userFound) {
+      return { message: "Email đã đăng kí!", success: false, formData }
+    }
+    customerData.password = await bcrypt.hash(customerData.password, 10);
+    await StaffModel.create(customerData);
+    redirect("/staff");
+    return { message: "Đăng kí thành công!", success: true, formData }
+  } catch (error) {
+    console.log("error instanceof ZodError:",error instanceof ZodError,error);
+    if (error instanceof ZodError) {
+      const flattenedError = error.flatten().fieldErrors;
+      const firstErrorKey = Object.keys(flattenedError)[0]; // Get the first key
+
+      if (firstErrorKey) {
+        const firstErrorMessage = flattenedError[firstErrorKey]?.[0];
+        if (firstErrorMessage) {
+          return {
+            message: `${firstErrorKey}: ${firstErrorMessage}`,
+            success: false,
+            formData,
+          };
+        }
+      }
+      return { message: "Validation error occurred.", success: false, formData }; //fallback message
+    }
+    return { message: "Đăng kí thất bại.", success: false, formData };
+  }
+}
+
 const updateStaff = async ( formData: FormData) => {
   try {
     const rawData = Object.fromEntries(formData.entries());
@@ -88,4 +136,4 @@ const deleteStaff = async (staffId: string) => {
   }
 }
 
-export { createStaff, updateStaff, toggleActiveStatus, deleteStaff }
+export { createStaff, updateStaff, toggleActiveStatus, deleteStaff, register }

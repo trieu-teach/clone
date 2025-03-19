@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { redirect, usePathname } from "next/navigation"
 import { BarChart3, Users, CreditCard, Settings, HelpCircle, LayoutDashboard, LogOut, UserCircle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -13,42 +13,14 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { AdminSidebarProps } from "@next-server-actions/types"
+import { signOut } from "next-auth/react"
 
-export function AdminSidebar() {
+
+export function AdminSidebar({ adminSidebarProps, userName, role }: { adminSidebarProps: AdminSidebarProps[], userName: string, role: string }) {
   const pathname = usePathname()
 
-  const routes = [
-    {
-      title: "Dashboard",
-      href: "/staff/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Users",
-      href: "/staff/staff-manament",
-      icon: Users,
-    },
-    {
-      title: "Revenue",
-      href: "/staff/revenue",
-      icon: BarChart3,
-    },
-    {
-      title: "Billing",
-      href: "/staff/billing",
-      icon: CreditCard,
-    },
-    {
-      title: "Profile",
-      href: "/staff/profile",
-      icon: UserCircle,
-    },
-    {
-      title: "Settings",
-      href: "/staff/settings",
-      icon: Settings,
-    },
-  ]
+  const routes = adminSidebarProps
 
   return (
     <Sidebar>
@@ -59,8 +31,8 @@ export function AdminSidebar() {
             <AvatarFallback>AC</AvatarFallback>
           </Avatar>
           <div className="grid gap-0.5">
-            <div className="font-medium">Acme Inc</div>
-            <div className="text-xs text-muted-foreground">Admin Dashboard</div>
+            <div className="font-medium">{userName}</div>
+            <div className="text-xs text-muted-foreground">{role}</div>
           </div>
         </div>
       </SidebarHeader>
@@ -89,10 +61,18 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton>
-              <LogOut className="h-5 w-5" />
-              <span>Logout</span>
-            </SidebarMenuButton>
+            <Link href={"#"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => {
+                signOut({ redirect: false }).then(() => {
+                  redirect("/staff/login")
+                });
+              }}
+            >
+              <SidebarMenuButton>
+                <LogOut className="h-5 w-5" />
+                <span>Đăng xuất</span>
+              </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

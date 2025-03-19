@@ -6,7 +6,7 @@ import { createColumns } from "@/components/data-table/columns";
 import { Badge } from "@/components/ui/badge";
 import { Staff } from "@/schemas/staffSchema";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CreateUserForm } from "@/components/forms/staff/createStaffForm";
+import { CreateUserForm } from "@/components/forms/staff/create-staff-form";
 import { TablePagination } from "@/components/data-table/table-pagination";
 import { RowSelectionState, TablePaginationProps } from "@next-server-actions/types";
 import { deleteStaff, toggleActiveStatus } from "@/actions/staffActions";
@@ -65,7 +65,7 @@ export default function ExampleTablePage() {
     const { sortBy, sortOrder } = sortData || { sortBy: "createdAt", sortOrder: "desc" };
     setPaginationData((prev) => ({ ...prev, page: 1 }));
     fetchData({name:stringFilterDebauced}, 1, paginationData.limit, sortBy, sortOrder);
-  }, [sortData, paginationData.limit, stringFilterDebauced]);
+  }, [sortData,, paginationData.limit, stringFilterDebauced]);
 
   useEffect(() => {
     const { sortBy, sortOrder } = sortData || { sortBy: "createdAt", sortOrder: "desc" };
@@ -332,7 +332,7 @@ export default function ExampleTablePage() {
   ];
 
   return (
-    <div className="bg-white border-2 border-dashed rounded-xl mx-auto mt-10 p-5">
+    <div className="container bg-white border-2 border-dashed rounded-xl mx-auto mt-10 p-5">
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-bold">Staff table</h1>
         <CreateUserForm />

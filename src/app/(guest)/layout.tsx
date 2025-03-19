@@ -5,7 +5,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "../provider";
+import { AuthProvider } from "./provider";
 
 
 const LexendSans = Lexend({ subsets: ['latin', 'latin-ext', 'vietnamese'] });

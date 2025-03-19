@@ -1,15 +1,23 @@
 "use client";
 
 import { memo, ReactNode, FormEvent } from "react";
+import { z } from "zod"
+import { CustomerSchema } from "@/schemas/customerSchema";
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import { useToast } from "@/lib/custom-hooks";
 import { redirect } from "next/navigation";
-import { SessionCustomer } from "@next-server-actions/types";
+import { StaffSchema } from "@/schemas/staffSchema";
 
+const CustomerLoginSchema = StaffSchema.pick({
+    password: true,
+    email: true,
+    name: true,
+});
 
+type CustomerFormValues = z.infer<typeof CustomerLoginSchema>;
 
 const FormField = memo(({
     name,
@@ -17,7 +25,7 @@ const FormField = memo(({
     children,
     description,
 }: {
-    name: keyof SessionCustomer
+    name: keyof CustomerFormValues
     label: string
     children: ReactNode
     description?: string
@@ -35,7 +43,7 @@ const LoginPage = () => {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const res = await signIn("customer-credentials", {
+        const res = await signIn("staff-credentials", {
             email: formData.get("email"),
             password: formData.get("password"),
             redirect: false,
@@ -45,7 +53,7 @@ const LoginPage = () => {
         }
         if (res?.ok) {
             useToast("login successfully");
-            redirect("/");
+            redirect("/staff");
         }
     };
 

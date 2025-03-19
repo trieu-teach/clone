@@ -1,4 +1,5 @@
 import { Customer, CustomerSchema } from "@/schemas/customerSchema";
+import { StaffSchema } from "@/schemas/staffSchema";
 
 // Update the DataTableProps type
 interface FilterDataTableProps<TData, TValue> {
@@ -88,3 +89,10 @@ type ActionReturn = {
 type CreateAction = (prevState: any, formData: FormData) => Promise<ActionReturn>
 
 type SessionCustomer = z.infer<typeof CustomerSchema.pick<{ name: true; email: true }>>
+type AdminSidebarProps = {
+    title: string
+    href: string
+    icon?: any
+  }
+  
+type SessionStaff = z.infer<typeof StaffSchema.pick<{ name: true; email: true, role:true }>>

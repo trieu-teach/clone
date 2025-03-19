@@ -5,7 +5,7 @@ import { z } from "zod"
 import { AddressSchema, CustomerSchema } from "@/schemas/customerSchema";
 import { ActionReturn, FormState } from "@next-server-actions/types";
 import { Label } from "@/components/ui/label"
-import { register } from "@/actions/customerRegisterAction";
+import { register } from "@/actions/customerActions";
 import { useToast } from "@/lib/custom-hooks";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -85,7 +85,6 @@ const FormField = memo(({
 
 const SignupPage = () => {
     const [state, formAction, isPending] = useActionState(register, initialState);
-    const [addressSelections, setAddressSelections] = useState<{ province: { value: string, label: string }[], district: { value: string, label: string }[], commune: { value: string, label: string }[] }>({ province: [], district: [], commune: [] });
     const [isLoading, setIsLoading] = useState(false);
     const [customerState, dispatch] = useReducer(customerReducer, initialCustomerState);
     const [isSubmitting, setIsSubmitting] = useState(false);
