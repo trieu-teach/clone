@@ -255,6 +255,7 @@ export function AddProductForm({ onProductAdded }: { onProductAdded?: () => void
                                         value: value,
                                     })
                                 }}
+                                placeholder="select category..."
                             />
                         )}
                     </FormField>

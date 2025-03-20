@@ -38,6 +38,9 @@ export default function searchableSelect({ selections, createNewSelection, value
             setInternalValue(value)
         }
     }, [value])
+    useEffect(() => {
+        console.log("test",inputValue && !selections.some((seletion) => seletion.label.toLowerCase() === inputValue.toLowerCase()) &&  "true" || "false")
+    }, [inputValue])
 
     // Handle value change
     const handleValueChange = useCallback(
@@ -89,14 +92,16 @@ export default function searchableSelect({ selections, createNewSelection, value
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
                     <Command
                         filter={(_, search, keywords) => {
-                            return keywords?.map((keyword) => keyword.toLocaleLowerCase().includes(search.toLocaleLowerCase())).some((result) => !!result) ? 1 : 0;
+                            if (!keywords) return 0;
+                            const match = keywords.map((keyword) => keyword.toLocaleLowerCase().includes(search.toLocaleLowerCase())).some((result) => !!result);
+                            return match || keywords.includes("_stay") ? 1 : 0;
                         }}
                     >
                         <CommandInput placeholder="Search seletion..." value={inputValue} onValueChange={setInputValue} />
                         <CommandList>
-                            <CommandEmpty>No seletion found.</CommandEmpty>
+                            <CommandEmpty>No seletion found.{createNewSelection && " Create a new seletion..."}</CommandEmpty>
                             <CommandGroup>
-                                {selections.map((seletion) => ( // Changed selectionsState to selections
+                                {selections.map((seletion) => (
                                     <CommandItem
                                         keywords={[seletion.label.toString()]}
                                         key={seletion.value}
@@ -116,8 +121,8 @@ export default function searchableSelect({ selections, createNewSelection, value
                             {createNewSelection && (
                                 <CommandGroup>
                                     {inputValue &&
-                                        !selections.some((seletion) => seletion.label.toLowerCase() === inputValue.toLowerCase()) && ( // Changed selectionsState to selections
-                                            <CommandItem onSelect={handleCreateNew} className="text-primary" disabled={isPending}>
+                                        !selections.some((seletion) => seletion.label.toLowerCase() === inputValue.toLowerCase()) && ( 
+                                            <CommandItem keywords={["_stay"]} onSelect={handleCreateNew} className="text-primary" disabled={isPending}>
                                                 <PlusCircle className="mr-2 h-4 w-4" />
                                                 Create "{inputValue}"
                                                 {state.message && (

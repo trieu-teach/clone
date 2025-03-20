@@ -5,6 +5,7 @@ import OrderModel from "@/models/order";
 import { OrderSchema, zOrderSchemaUdate } from '@/schemas/orderSchema';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
+import OrderDetailModel from '@/models/orderDetail';
 
 export async function createOrder(formData: FormData) {
   try {
@@ -60,4 +61,31 @@ export async function deleteOrder(orderId: string) { // Note: Pass ID directly
 } catch (error) {
   return { error: 'Failed to delete order.' };
 }
+}
+
+export async function checkOutOrder(formData: FormData) {
+    try {
+        const rawData = Object.fromEntries(formData.entries());
+        const orderData = JSON.parse(rawData.order as string);
+        const orderDetailData = JSON.parse(rawData.orderDetail as string);
+        const orderParsed = OrderSchema.parse(orderData);
+        
+        await connectDB();
+        const order = await OrderModel.create(orderParsed);
+        if (orderDetailData) {
+            await OrderDetailModel.insertMany(orderDetailData.map((detail:any) => ({
+                ...detail,
+                order_id: order._id
+            })));
+        }
+
+        revalidatePath('/orders'); // Revalidate the order list page
+        return { message: 'Order created successfully!' };
+    } catch (error) {
+        console.log(error)
+        if (error instanceof ZodError) {
+            return { error: error.flatten() };
+        }
+        return { error: 'Failed to create order.' }; // Generic error message
+    }
 }

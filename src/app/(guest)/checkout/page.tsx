@@ -1,70 +1,141 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { SelectContent } from "@radix-ui/react-select";
-import { Image } from "lucide-react";
+import { Table, TableHeader, TableRow, TableBody, TableCell } from "@/components/ui/table";
+import { Trash } from "lucide-react";
+import { useCart, useToast } from "@/lib/custom-hooks";
+import { zCategorySchemaUdate } from "@/schemas/categorySchema";
+import { z } from "zod";
+import SignupPage from "../signup/page";
+import { useSession } from "next-auth/react";
+import Image from 'next/image';
+import { AddressSchema, zCustomerSchemaUdate } from "@/schemas/customerSchema";
+import { Order, OrderSchema } from "@/schemas/orderSchema";
+import { OrderDetailSchema } from "@/schemas/orderDetailSchema";
+import { checkOutOrder } from "@/actions/orderActions";
+
+
 
 export default function CheckoutPage() {
+    const { status, data: session } = useSession();
+    const { items, setQuantity, removeItem } = useCart()
+    const [categories, setCategories] = useState<z.infer<typeof zCategorySchemaUdate>[]>([])
+    const [shippingAddress, setShippingAddress] = useState<z.infer<typeof AddressSchema> | null>()
+    const [order, setOrder] = useState<z.infer<typeof OrderSchema> | null>()
+    const [orderDetail, setOrderDetail] = useState<z.infer<typeof OrderDetailSchema>[] | null>()
+    const subtotal = items.reduce(
+        (total, { product }) => total + product.price,
+        0
+    )
+    const discount = 10000;
     const [paymentMethod, setPaymentMethod] = useState("credit");
-    const [shippingCost, setShippingCost] = useState(12.0);
-    const discount = 10.0;
+    const [shippingCost, setShippingCost] = useState(12000);
     const taxRate = 0.18;
+    useEffect(() => {
+        fetch("/api/category")
+            .then((res) => res.json())
+            .then((data) => {
+                setCategories(data.data)
+            })
+            .catch((err) => {
+                console.error(err)
+            })
 
-    const products = [
-        { id: 1, name: "iPhone 14 Pro", price: 995, quantity: 1, image: "/images/iphone14pro.jpg" },
-        { id: 2, name: "AirPods Pro", price: 249, quantity: 1, image: "/images/airpodspro.jpg" },
-    ];
+    }, [])
+    useMemo(() => {
+        if ((session?.user as z.infer<typeof zCustomerSchemaUdate>)?.address) setShippingAddress((session?.user as z.infer<typeof zCustomerSchemaUdate>)?.address)
+    }, [session]);
+
+    const AddressComponent = useMemo(() => {
+        if (status === "authenticated") {
+        }
+        return <SignupPage />
+    }, [status, session]);
+
+
 
     // Tính tổng giá trị đơn hàng
-    const subtotal = products.reduce((acc, product) => acc + product.price * product.quantity, 0);
     const total = subtotal + shippingCost - discount + subtotal * taxRate;
+    const handleCheckout = async () => {
+        const formData = new FormData();
+        const newOrder = {
+            shippingAddress: shippingAddress,
+            status: "pending",
+            final_amount: total,
+            payment_method: "cash",
+            customer_id:(session?.user as z.infer<typeof zCustomerSchemaUdate>)?._id
+        }
+        const newOrderDetail = items.map((item) => {
+            return{
+                product_id: item.product._id,
+                quantity: item.quantity,
+                price: item.product.price
+            }
+        })
+        formData.append("order", JSON.stringify(newOrder));
+        formData.append("orderDetail", JSON.stringify(newOrderDetail));
+        const result = await checkOutOrder(formData)
+        if (result.message) useToast(result.message)
+    }
 
     return (
         <>
-            <div className="max-w-4xl mx-auto p-6 bg-white rounded-md shadow-md">
+            <div className="p-6 bg-white rounded-md shadow-md">
                 <h2 className="text-lg font-semibold mb-4">Chi tiết sản phẩm</h2>
                 <Card className="mb-6">
                     <CardContent>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Hình ảnh</TableHead>
-                                    <TableHead>Sản phẩm</TableHead>
-                                    <TableHead>Giá</TableHead>
-                                    <TableHead>Số lượng</TableHead>
-                                    <TableHead>Tổng</TableHead>
+                                    <TableCell>ẢNH SẢN PHẨM</TableCell>
+                                    <TableCell>TÊN SẢN PHẨM</TableCell>
+                                    <TableCell>DANH MỤC</TableCell>
+                                    <TableCell>SỐ LƯƠNG</TableCell>
+                                    <TableCell>GIÁ</TableCell>
+                                    <TableCell>XÓA</TableCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map((product) => (
-                                    <TableRow key={product.id}>
+                                {items.map((item, key) => (
+                                    <TableRow key={key}>
                                         <TableCell>
-                                            <div className="w-[50px] h-[50px] bg-gray-300 flex items-center justify-center rounded overflow-hidden">
-                                                {product.image ? (
-                                                    <img
-                                                        src={product.image}
-                                                        alt={product.name}
-                                                        width={50}
-                                                        height={50}
-                                                        className="object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full bg-gray-400"></div>
-                                                )}
+                                            <div className="w-[50px] h-[50px] rounded-lg bg-gray-300 flex items-center justify-center overflow-hidden">
+                                                <Image
+                                                    src={item.product.image_url || "/placeholder.svg"}
+                                                    alt={item.product.name}
+                                                    className="rounded-lg object-cover w-full aspect-square mb-8 cursor-pointer"
+                                                    width={150}
+                                                    height={150}
+                                                    onError={(e) => {
+                                                        e.currentTarget.src = "/placeholder.svg";
+                                                    }}
+                                                />
                                             </div>
                                         </TableCell>
-
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>${product.price.toFixed(2)}</TableCell>
-                                        <TableCell>{product.quantity}</TableCell>
-                                        <TableCell>${(product.price * product.quantity).toFixed(2)}</TableCell>
+                                        <TableCell>{item.product.name}</TableCell>
+                                        <TableCell>{categories.find((category) => category._id === item.product.category_id)?.name}</TableCell>
+                                        <TableCell>
+                                            <Input
+                                                type="number"
+                                                value={item.quantity}
+                                                onChange={(e) => {
+                                                    const newQuantity = Number.parseInt(e.target.value);
+                                                    setQuantity(item.product._id as string, newQuantity)
+                                                }}
+                                                className="w-16"
+                                            />
+                                        </TableCell>
+                                        <TableCell>{item.product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                                        <TableCell>
+                                            <Button variant="destructive" onClick={() => removeItem(item.product._id as string)} size="icon">
+                                                <Trash size={16} />
+                                            </Button>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -75,37 +146,18 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card>
                         <CardContent>
-                            <h2 className="text-lg font-semibold mb-4">Thông tin cá nhân của bạn</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <Input placeholder="Họ" />
-                                <Input placeholder="Tên" />
-                                <Input placeholder="Số điện thoại" />
-                                <Input placeholder="Địa chỉ email" />
-                                <Input className="col-span-2" placeholder="Địa chỉ nhận hàng" />
-                                <Input placeholder="Thành phố" />
-                                <Input placeholder="Quận/Huyện" />
-                                <Input placeholder="Phường/Xã" />
-                                <Input placeholder="Mã giảm giá" />
-                                <Select>
-                                    <SelectContent>
-                                        <SelectItem value="us">United States</SelectItem>
-                                        <SelectItem value="vn">Vietnam</SelectItem>
-                                        <SelectItem value="jp">Japan</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <Button className="w-full mt-4">Lưu</Button>
+                            <SignupPage />
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardContent>
                             <h2 className="text-lg font-semibold mb-4">Pricing</h2>
-                            <div className="flex justify-between"><span>Tổng giá trị đơn hàng:</span> <span>${subtotal.toFixed(2)}</span></div>
-                            <div className="flex justify-between text-red-500"><span>Phí vận chuyển:</span> <span>${shippingCost.toFixed(2)}</span></div>
-                            <div className="flex justify-between text-green-500"><span>Giảm giá:</span> <span>-${discount.toFixed(2)}</span></div>
-                            <div className="flex justify-between"><span>Thuế (18%):</span> <span>${(subtotal * taxRate).toFixed(2)}</span></div>
-                            <div className="flex justify-between font-bold border-t mt-2 pt-2"><span>Tổng thanh toán:</span> <span>${total.toFixed(2)}</span></div>
+                            <div className="flex justify-between"><span>Tổng giá trị đơn hàng:</span> <span>{subtotal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span></div>
+                            <div className="flex justify-between text-red-500"><span>Phí vận chuyển:</span> <span>{shippingCost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span></div>
+                            <div className="flex justify-between text-green-500"><span>Giảm giá:</span> <span>-{discount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span></div>
+                            <div className="flex justify-between"><span>Thuế (18%):</span> <span>{(subtotal * taxRate).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span></div>
+                            <div className="flex justify-between font-bold border-t mt-2 pt-2"><span>Tổng thanh toán:</span> <span>{total.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span></div>
                         </CardContent>
                     </Card>
                 </div>
@@ -137,7 +189,7 @@ export default function CheckoutPage() {
                                 </div>
                             </>
                         )}
-                        <Button className="w-full mt-4">Thanh toán ngay</Button>
+                        <Button className="w-full mt-4" onClick={handleCheckout}>Thanh toán ngay</Button>
                     </CardContent>
                 </Card>
             </div>

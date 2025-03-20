@@ -96,3 +96,11 @@ type AdminSidebarProps = {
   }
   
 type SessionStaff = z.infer<typeof StaffSchema.pick<{ name: true; email: true, role:true }>>
+
+type PaginationedData<T> = {
+    data: T[]
+    page: number
+    limit: number
+    totalPages: number
+    totalDocs: number
+}

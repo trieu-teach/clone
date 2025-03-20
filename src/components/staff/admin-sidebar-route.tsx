@@ -3,6 +3,7 @@ import { AdminSidebarProps, SessionStaff, } from "@next-server-actions/types"
 import { LayoutDashboard, Users, BarChart3, CreditCard, UserCircle, Settings, HandPlatter } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { AdminSidebar } from "./admin-sidebar"
+import { useMemo } from "react";
 
 const staffSidebarProps: AdminSidebarProps[] = [
     {
@@ -12,7 +13,7 @@ const staffSidebarProps: AdminSidebarProps[] = [
     },
     {
         title: "Customer Management",
-        href: "/staff/customer-management",        
+        href: "/staff/customer-management",
         icon: Users,
     },
     {
@@ -67,15 +68,18 @@ const adminSidebarProps: AdminSidebarProps[] = [
 ]
 export default function AdminSidebarRoute() {
     const { status, data: session } = useSession();
-    const showSession = () => {
+
+    const sidebar = useMemo(() => {
         if (status === "authenticated") {
             if ((session?.user as SessionStaff).role === "admin") {
-                return <AdminSidebar adminSidebarProps={adminSidebarProps} userName={(session?.user as SessionStaff).name} role={(session?.user as SessionStaff).role} />
+                return <AdminSidebar adminSidebarProps={adminSidebarProps} userName={(session?.user as SessionStaff).name} role={(session?.user as SessionStaff).role} />;
             }
             if ((session?.user as SessionStaff).role === "staff") {
-                return <AdminSidebar adminSidebarProps={staffSidebarProps}  userName={(session?.user as SessionStaff).name} role={(session?.user as SessionStaff).role} />
+                return <AdminSidebar adminSidebarProps={staffSidebarProps} userName={(session?.user as SessionStaff).name} role={(session?.user as SessionStaff).role} />;
             }
         }
-    }
-    return showSession()
+        return null; // Or some default/loading state if not authenticated
+    }, [status, session]);
+
+    return sidebar;
 }

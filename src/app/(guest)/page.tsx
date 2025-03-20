@@ -1,8 +1,9 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 import type { Metadata } from 'next'
+import {FeaturedProducts} from "@/components/home-page/featured-products";
+import { DisplayedProducts } from "@/components/home-page/displayed-products";
 export const metadata: Metadata = {
   title: 'Trang chủ',
 }
@@ -37,28 +38,7 @@ export default function Home() {
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tighter text-center mb-6 text-white">
               Sản Phẩm Nổi Bật
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i} className="flex-shrink-0 w-full bg-white">
-                  <CardContent className="p-3">
-                    <Image
-                      src={`/placeholder.svg?height=180&width=180`}
-                      alt={`Sản Phẩm Nổi Bật ${i}`}
-                      className="rounded-lg object-cover w-full aspect-square mb-4 cursor-pointer"
-                      width={150}
-                      height={150}
-                    />
-                    <h3 className="font-semibold text-md mb-2 cursor-pointer">
-                      Sản Phẩm Nổi Bật {i}
-                    </h3>
-                    <p className="text-xs text-gray-400 mb-4">
-                      Mô tả ngắn gọn về sản phẩm nổi bật {i}.
-                    </p>
-                    <Button className="w-full text-sm">Thêm Vào Giỏ</Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <FeaturedProducts/>
           </div>
         </section>
 
@@ -80,28 +60,7 @@ export default function Home() {
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tighter text-center mb-6 text-white">
               Tất Cả Sản Phẩm
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-auto">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <Card key={i} className="flex-shrink-0 w-full bg-white">
-                  <CardContent className="p-3">
-                    <Image
-                      src={`/placeholder.svg?height=180&width=180`}
-                      alt={`Sản Phẩm ${i}`}
-                      className="rounded-lg object-cover w-full aspect-square mb-4 cursor-pointer"
-                      width={150}
-                      height={150}
-                    />
-                    <h3 className="font-semibold text-md mb-2 cursor-pointer">
-                      Tên Sản Phẩm {i}
-                    </h3>
-                    <p className="text-xs text-gray-400 mb-4">
-                      Mô tả ngắn gọn về sản phẩm {i}.
-                    </p>
-                    <Button className="w-full text-sm">Thêm Vào Giỏ</Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <DisplayedProducts/>
           </div>
         </section>
       </main>
