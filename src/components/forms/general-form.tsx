@@ -50,7 +50,10 @@ export function CreateForm<T>(inputFormFields: formField<T>[], createAction: Cre
                         <div className="space-y-2" key={fields.name?.toString()}>
                             <Label htmlFor={fields.name?.toString()}>{fields.label}</Label>
                             {fields.type === "selection" ? (
-                                searchableSelect(fields.selections || [],fields.CreateAction)
+                                searchableSelect({
+                                    createNewSelection: fields.CreateAction,
+                                    selections: fields.selections||[],
+                               })
                             ) : (
                                 <Input
                                     id={fields.name?.toString()}
