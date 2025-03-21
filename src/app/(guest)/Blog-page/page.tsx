@@ -1,145 +1,200 @@
-import Image from "next/image";
+import Link from "next/link"
+import Image from "next/image"
+import { CalendarIcon, Clock } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-export default function BlogPage() {
-  return (
-    <div className="flex flex-col min-h-screen">
+export default function SkincareBlog() {
+    return (
+        <div className="min-h-screen bg-background">
 
-      <main className="flex-1 bg-[url('/background-image.jpg')] bg-cover bg-center">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-100 bg-cover bg-center">
-          <div className=" px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  Blog - Chia Sẻ Kiến Thức Chăm Sóc Da
-                </h1>
-                <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Khám phá những bài viết về chăm sóc da tự nhiên và các mẹo làm đẹp hữu ích.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+            <main className="container py-8 md:py-12">
+                <section className="mb-12">
+                    <div className="relative h-[400px] w-full overflow-hidden rounded-lg">
+                        <Image
+                            src="/placeholder.svg?height=800&width=1600"
+                            alt="Featured skincare article"
+                            width={1600}
+                            height={800}
+                            className="object-cover"
+                            priority
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-0 left-0 p-6 text-white">
+                            <Badge className="mb-2 bg-primary text-primary-foreground">Featured</Badge>
+                            <h1 className="mb-2 text-3xl font-bold md:text-4xl">The Ultimate Guide to Building a Skincare Routine</h1>
+                            <p className="mb-4 max-w-2xl text-sm md:text-base">
+                                Learn how to create a personalized skincare routine that addresses your specific concerns and helps you
+                                achieve healthy, glowing skin.
+                            </p>
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src="/placeholder.svg" alt="Author" />
+                                        <AvatarFallback>DR</AvatarFallback>
+                                    </Avatar>
+                                    <span className="text-sm">Dr. Emma Roberts</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-sm">
+                                    <CalendarIcon className="h-4 w-4" />
+                                    <span>May 15, 2023</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-sm">
+                                    <Clock className="h-4 w-4" />
+                                    <span>8 min read</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-      {/* Thêm bảng mục lục */}
-      <section className="w-full py-4 bg-white">
-          <div className=" px-4 md:px-6 flex justify-center">
-            <div className="bg-gray-200 p-6 rounded-lg shadow-lg w-full max-w-md">
-              <h2 className="text-xl font-bold mb-4 text-center">Mục Lục</h2>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <a href="#daKho" className="text-blue-500 hover:underline">
-                    Da Khô
-                  </a>
-                </li>
-                <li>
-                  <a href="#daDau" className="text-blue-500 hover:underline">
-                    Da Dầu
-                  </a>
-                </li>
-                <li>
-                  <a href="#quyTrinhDuongDaToi" className="text-blue-500 hover:underline">
-                    Quy Trình Dưỡng Da Tối
-                  </a>
-                </li>
-                <li>
-                  <a href="#quyTrinhDuongDaSang" className="text-blue-500 hover:underline">
-                    Quy Trình Dưỡng Da Sáng
-                  </a>
-                </li>
-                <li>
-                  <a href="#tayTrang" className="text-blue-500 hover:underline">
-                    Tẩy Trang
-                  </a>
-                </li>
-                <li>
-                  <a href="#suaRuaMat" className="text-blue-500 hover:underline">
-                    Sữa Rửa Mặt
-                  </a>
-                </li>
-                <li>
-                  <a href="#tayTeBaoChet" className="text-blue-500 hover:underline">
-                    Tẩy Tế Bào Chết
-                  </a>
-                </li>
-                <li>
-                  <a href="#toner" className="text-blue-500 hover:underline">
-                    Toner
-                  </a>
-                </li>
-                <li>
-                  <a href="#dieuTriMun" className="text-blue-500 hover:underline">
-                    Điều Trị Mụn
-                  </a>
-                </li>
-                <li>
-                  <a href="#dieuTriTham" className="text-blue-500 hover:underline">
-                    Điều Trị Thâm
-                  </a>
-                </li>
-                <li>
-                  <a href="#serum" className="text-blue-500 hover:underline">
-                    Serum
-                  </a>
-                </li>
-                <li>
-                  <a href="#dauDuong" className="text-blue-500 hover:underline">
-                    Dầu Dưỡng
-                  </a>
-                </li>
-                <li>
-                  <a href="#kemDuong" className="text-blue-500 hover:underline">
-                    Kem Dưỡng
-                  </a>
-                </li>
-                <li>
-                  <a href="#kemChongNang" className="text-blue-500 hover:underline">
-                    Kem Chống Nắng
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
+                <div className="grid gap-12 md:grid-cols-3">
+                    <div className="md:col-span-2">
+                        <h2 className="mb-6 text-2xl font-bold">Latest Articles</h2>
+                        <div className="grid gap-6">
+                            <Card>
+                                <div className="flex flex-col md:flex-row">
+                                    <div className="relative h-48 w-full md:h-auto md:w-1/3">
+                                        <Image
+                                            src="/placeholder.svg?height=400&width=600"
+                                            alt="Skincare ingredients"
+                                            fill
+                                            className="rounded-t-lg object-cover md:rounded-l-lg md:rounded-t-none"
+                                        />
+                                    </div>
+                                    <div className="flex-1 p-6">
+                                        <CardHeader className="p-0 pb-3">
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <Badge variant="outline">Ingredients</Badge>
+                                                <div className="flex items-center gap-1">
+                                                    <CalendarIcon className="h-3 w-3" />
+                                                    <span>May 10, 2023</span>
+                                                </div>
+                                            </div>
+                                            <CardTitle className="mt-2 text-xl">
+                                                Understanding Active Ingredients: Retinol, AHAs, and BHAs
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0 py-3">
+                                            <p className="text-muted-foreground">
+                                                Dive deep into the science behind popular active ingredients and learn how to incorporate them
+                                                into your routine for maximum benefits without irritation.
+                                            </p>
+                                        </CardContent>
+                                        <CardFooter className="flex items-center justify-between p-0 pt-3">
+                                            <div className="flex items-center gap-2">
+                                                <Avatar className="h-6 w-6">
+                                                    <AvatarImage src="/placeholder.svg" alt="Author" />
+                                                    <AvatarFallback>JD</AvatarFallback>
+                                                </Avatar>
+                                                <span className="text-xs">Dr. James Davis</span>
+                                            </div>
+                                            <Button variant="ghost" size="sm">
+                                                Read More
+                                            </Button>
+                                        </CardFooter>
+                                    </div>
+                                </div>
+                            </Card>
 
-        {/* Các bài viết blog */}
-        <section className="w-full py-12 bg-white flex justify-center items-center">
-          <div className="max-w-5xl">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tighter text-center mb-6 text-black">
-              Bài Viết Mới Nhất
-            </h2>
-            <div className="space-y-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex flex-col mb-8">
-                  <Image
-                    src={`/placeholder.svg?height=180&width=180`}
-                    alt={`Bài Viết Blog ${i}`}
-                    className="rounded-lg object-cover w-full aspect-square mb-4 cursor-pointer"
-                    width={150}
-                    height={150}
-                  />
-                  <h3 className="font-semibold text-xl mb-2 cursor-pointer">
-                    Bài Viết Blog {i}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Bài viết blog {i} chia sẻ kiến thức về cách chăm sóc da đúng cách. Chúng tôi sẽ hướng dẫn bạn các bước chăm sóc da hàng ngày để đạt được làn da khỏe mạnh và mịn màng.
-                    <br /><br />
-                    <strong>Các mẹo chăm sóc da:</strong>
-                    <ul className="list-disc pl-6">
-                      <li>Rửa mặt đúng cách 2 lần mỗi ngày.</li>
-                      <li>Dưỡng ẩm để giữ cho da mềm mại.</li>
-                      <li>Chống nắng mỗi ngày để bảo vệ da khỏi tia UV.</li>
-                    </ul>
-                    <br />
-                    Ngoài ra, chế độ ăn uống và sinh hoạt lành mạnh cũng đóng vai trò quan trọng trong việc duy trì làn da đẹp.
-                  </p>
+                            <Card>
+                                <div className="flex flex-col md:flex-row">
+                                    <div className="relative h-48 w-full md:h-auto md:w-1/3">
+                                        <Image
+                                            src="/placeholder.svg?height=400&width=600"
+                                            alt="Moisturizers"
+                                            fill
+                                            className="rounded-t-lg object-cover md:rounded-l-lg md:rounded-t-none"
+                                        />
+                                    </div>
+                                    <div className="flex-1 p-6">
+                                        <CardHeader className="p-0 pb-3">
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <Badge variant="outline">Products</Badge>
+                                                <div className="flex items-center gap-1">
+                                                    <CalendarIcon className="h-3 w-3" />
+                                                    <span>May 5, 2023</span>
+                                                </div>
+                                            </div>
+                                            <CardTitle className="mt-2 text-xl">The Best Moisturizers for Every Skin Type</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0 py-3">
+                                            <p className="text-muted-foreground">
+                                                Find the perfect moisturizer for your skin type, whether you're dealing with dryness, oiliness,
+                                                sensitivity, or a combination of concerns.
+                                            </p>
+                                        </CardContent>
+                                        <CardFooter className="flex items-center justify-between p-0 pt-3">
+                                            <div className="flex items-center gap-2">
+                                                <Avatar className="h-6 w-6">
+                                                    <AvatarImage src="/placeholder.svg" alt="Author" />
+                                                    <AvatarFallback>SL</AvatarFallback>
+                                                </Avatar>
+                                                <span className="text-xs">Sarah Lee</span>
+                                            </div>
+                                            <Button variant="ghost" size="sm">
+                                                Read More
+                                            </Button>
+                                        </CardFooter>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            <Card>
+                                <div className="flex flex-col md:flex-row">
+                                    <div className="relative h-48 w-full md:h-auto md:w-1/3">
+                                        <Image
+                                            src="/placeholder.svg?height=400&width=600"
+                                            alt="Sunscreen"
+                                            fill
+                                            className="rounded-t-lg object-cover md:rounded-l-lg md:rounded-t-none"
+                                        />
+                                    </div>
+                                    <div className="flex-1 p-6">
+                                        <CardHeader className="p-0 pb-3">
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <Badge variant="outline">Sun Protection</Badge>
+                                                <div className="flex items-center gap-1">
+                                                    <CalendarIcon className="h-3 w-3" />
+                                                    <span>April 28, 2023</span>
+                                                </div>
+                                            </div>
+                                            <CardTitle className="mt-2 text-xl">Sunscreen Myths Debunked: What You Need to Know</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0 py-3">
+                                            <p className="text-muted-foreground">
+                                                Separate fact from fiction when it comes to sun protection. Learn about SPF, reapplication, and
+                                                how to choose the right sunscreen for daily use.
+                                            </p>
+                                        </CardContent>
+                                        <CardFooter className="flex items-center justify-between p-0 pt-3">
+                                            <div className="flex items-center gap-2">
+                                                <Avatar className="h-6 w-6">
+                                                    <AvatarImage src="/placeholder.svg" alt="Author" />
+                                                    <AvatarFallback>MP</AvatarFallback>
+                                                </Avatar>
+                                                <span className="text-xs">Dr. Michael Park</span>
+                                            </div>
+                                            <Button variant="ghost" size="sm">
+                                                Read More
+                                            </Button>
+                                        </CardFooter>
+                                    </div>
+                                </div>
+                            </Card>
+                        </div>
+                        <div className="mt-8 flex justify-center">
+                            <Button variant="outline">Load More Articles</Button>
+                        </div>
+                    </div>
+
+
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
+            </main>
 
-       
-      </main>
-    </div>
-  );
+        </div>
+    )
 }
+
