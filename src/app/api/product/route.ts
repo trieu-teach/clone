@@ -7,15 +7,13 @@ const GET = async (req: Request) => {
         await connectDB();
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
-        const limit = parseInt(searchParams.get('limit') || '10', 10);        
+        const limit = parseInt(searchParams.get('limit') || '10', 10);
         const sortBy = searchParams.get('sortBy') || 'createdAt';
         const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
         const id = searchParams.get('id');
         const nameFilter = searchParams.get('name');
         const isActiveFilter = searchParams.get('is_active');
-
-        
-
+        const randomOrder = searchParams.get('randomOrder') === 'true';
         const skip = (page - 1) * limit;
 
         if (id) {
@@ -39,16 +37,26 @@ const GET = async (req: Request) => {
             filter.is_active = isActiveFilter === 'true';
         }
 
-        const sort: { [key: string]: SortOrder } = {
-            [sortBy]: sortOrder as SortOrder,
-            _id: 1 as SortOrder,
-        };
-
         const totalDocs = await ProductModel.countDocuments(filter);
-        const products = await ProductModel.find(filter)
-            .sort(sort)
-            .skip(skip)
-            .limit(limit);
+        let products;
+        if (randomOrder) {
+            // Aggregate pipeline for random ordering
+            products = await ProductModel.aggregate([
+                { $match: filter },
+                { $sample: { size: limit } },
+                { $skip: skip },
+            ]);
+        } else {
+            const sort: { [key: string]: SortOrder } = {
+                [sortBy]: sortOrder as SortOrder,
+                _id: 1 as SortOrder,
+            };
+
+            products = await ProductModel.find(filter)
+                .sort(sort)
+                .skip(skip)
+                .limit(limit);
+        }
 
 
         return new Response(JSON.stringify({
@@ -71,4 +79,3 @@ const GET = async (req: Request) => {
 }
 
 export { GET }
-

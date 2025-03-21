@@ -47,6 +47,7 @@ next-env.d.ts
 
 #repomix
 repomix-output.txt
+repomix-output.xml
 
 #vscode config
 /.vscode/

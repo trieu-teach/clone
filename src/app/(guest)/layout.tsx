@@ -5,6 +5,8 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "./provider";
+
 
 const LexendSans = Lexend({ subsets: ['latin', 'latin-ext', 'vietnamese'] });
 
@@ -23,25 +25,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning={true}>
-      <body
-        className={`${LexendSans.className} antialiased flex flex-col min-h-full`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> {/* change defaultTheme to system */}
-
-        <Header />
-        <div className="z-10 m-auto container px-2">
-          {children}
-        </div>
-        <div className="grow shrink-0 basis-auto min-h-2"></div>
-        <div className="absolute inset-0">
-          <div className="fixed inset-0 -z-10 h-full w-full  bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
-        </div>
-        <Toaster className="bg-slate-600" />
-        <div className="shrink-0">
-          <Footer />
-        </div>
-        </ThemeProvider>
-      </body>
+      <AuthProvider>
+        <body className={`${LexendSans.className} antialiased flex flex-col min-h-svh`}>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+            <div className="absolute inset-0">
+              <div className="fixed inset-0 -z-10 h-full w-full  bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
+            </div>
+            <Header />
+            <div className="z-10 m-auto container px-2">
+              {children}
+            </div>
+            <div className="grow shrink-0 basis-auto min-h-2"></div>
+            <Toaster className="bg-slate-600" />
+            <div className="shrink-0">
+              <Footer />
+            </div>
+          </ThemeProvider>
+        </body>
+      </AuthProvider>
     </html>
   );
 }

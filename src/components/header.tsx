@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { Leaf, ShoppingCart, User, Search } from "lucide-react";
-import { useState } from "react"; // Import useState để quản lý state
+import { useEffect, useState, useRef } from "react"; // Import useRef
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useSession, signOut } from "next-auth/react";
+import { SessionCustomer } from "@next-server-actions/types";
+import { redirect } from "next/navigation";
+
 
 const link = [
   {
@@ -27,23 +31,102 @@ const link = [
 
 const dropdown = [
   {
-    title: "Đăng Nhập",
-    link: "/login"
+    title: "tài khoản",
+    link: "/user"
   },
   {
-    title: "Đăng Ký",
-    link: "/signup"
+    title: "Đơn mua",
+    link: "/order"
   },
 ]
 
+
+
 export default function Header() {
+  const { status, data: session } = useSession();
   // State để kiểm soát dropdown menu
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // Create a ref for the dropdown
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Hàm xử lý khi bấm vào biểu tượng Đăng Nhập
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+  const showSession = () => {
+    if (status === "authenticated") {
+      return (
+        <div className="relative" ref={dropdownRef}> {/* Attach the ref here */}
+          <Button
+            className="flex items-center justify-center w-8 hover:bg-gray-300 focus:bg-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 p-2 rounded-md"
+            onClick={toggleDropdown} // Bấm vào để toggle dropdown
+          >
+            <User className="h-5 w-5" />
+          </Button>
+
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <div className="absolute flex flex-col w-max right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-md z-10">
+              <p className="px-4 py-2 text-sm">Hello, {(session?.user as SessionCustomer)?.name}!</p>
+              {dropdown.map((item, index) => (
+                <Link
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  href={item.link}
+                  key={index}>
+                  {item.title}
+                </Link>
+              ))}
+              <Link href={"#"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  signOut({ redirect: false }).then(() => {
+                    redirect("/")
+                  });
+                }}
+              >Đăng xuất</Link>
+            </div>
+          )}
+        </div>
+      )
+    } else if (status === "loading") {
+      return (
+        <span className="text-[#888] text-sm mt-7">Loading...</span>
+      )
+    } else {
+      return (
+        <div>
+          <Button className="mx-2" variant={"outline"}>
+            <Link
+              href="/login"
+            >
+              Đăng Nhập
+            </Link>
+          </Button>
+          <Button className="mx-2">
+            <Link
+              href="/signup"
+            >
+              Đăng kí
+            </Link>
+          </Button>
+        </div>
+      )
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6 h-14 flex items-center">
@@ -93,29 +176,9 @@ export default function Header() {
         </Link>
 
         {/* Dropdown menu cho Đăng Nhập */}
-        <div className="relative">
-          <Button
-            className="flex items-center justify-center w-8 hover:bg-gray-300 focus:bg-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 p-2 rounded-md"
-            onClick={toggleDropdown} // Bấm vào để toggle dropdown
-          >
-            <User className="h-5 w-5" />
-            <span className="sr-only">Đăng Nhập</span>
-          </Button>
+        {showSession()}
 
-          {/* Dropdown Menu */}
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-md z-10">
-              {dropdown.map((item, index) => (
-                <Link
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  href={item.link}
-                  key={index}>
-                  {item.title}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+
       </nav>
     </header>
   );

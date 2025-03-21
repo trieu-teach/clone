@@ -10,7 +10,9 @@ import { RowSelectionState, TablePaginationProps } from "@next-server-actions/ty
 import { useToast } from "@/lib/custom-hooks"
 import { Product } from "@/schemas/productSchema"
 import { deleteProduct, toggleActiveStatus } from "@/actions/productActions";
-import { CreateProductForm } from "@/components/forms/staff/createProductForm";
+import { AddProductDialog } from "@/components/forms/staff/add-product-dialog";
+import { Selection } from "@next-server-actions/types";
+
 export default function ExampleTablePage() {
     const [data, setData] = useState<Product[]>([]);
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -24,6 +26,9 @@ export default function ExampleTablePage() {
     });
     const [rowSelection, setRowSelection] = useState({});
     const [stringFilterDebauced, setStringFilterDebauced] = useState<string>("")
+    const [category, setCategory] = useState<Selection[]>([])
+
+
 
     const fetchData = async (
         filters: any = {},
@@ -57,8 +62,26 @@ export default function ExampleTablePage() {
         }
     };
 
+    const fetchCategoryData = async () => {
+        try {
+            const res = await fetch('/api/category')
+            if (!res.ok) {
+                throw new Error(`Failed to fetch categories: ${res.statusText}`);
+            }
+            const rawData = await res.json();
+            const formattedData: Selection[] = rawData.data.map((item: any) => ({
+                value: item._id,
+                label: item.name
+            }))
+            setCategory(formattedData)
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    }
+
     useEffect(() => {
         fetchData();
+        fetchCategoryData()
     }, []);
 
     useEffect(() => {
@@ -87,6 +110,8 @@ export default function ExampleTablePage() {
             });
         }
     }, [data, selectedRows]);
+
+    // useEffect(() => {fetchCategoryData()},[category,data])
 
     const handleRowSelectionChange = (rowId: string, isSelected: boolean) => {
         setSelectedRows((prevSelectedRows) => {
@@ -223,6 +248,11 @@ export default function ExampleTablePage() {
                 ),
             },
             {
+                accessorKey: "name",
+                header: "Product name",
+                enableSorting: true,
+            },
+            {
                 accessorKey: "price",
                 header: "price",
                 enableSorting: true,
@@ -236,11 +266,13 @@ export default function ExampleTablePage() {
                 accessorKey: "category_id",
                 header: "Category",
                 enableSorting: true,
-            },
-            {
-                accessorKey: "image_url",
-                header: "image_url",
-                enableSorting: true,
+                cell: (info: { getValue: () => string }) => {
+                    const foundCategory = category.find((item: Selection) => item.value === info.getValue());
+                    return foundCategory ? (
+                        <span>{foundCategory.label}</span>
+                    ) : <span>Unknown Category</span>;
+                }
+
             },
             {
                 accessorKey: "is_active",
@@ -334,7 +366,8 @@ export default function ExampleTablePage() {
         <div className="bg-white border-2 border-dashed rounded-xl mx-auto mt-10 p-5">
             <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-bold">Product table</h1>
-                <CreateProductForm />
+                {/* <CreateProductForm /> */}
+                <AddProductDialog/>
             </div>
             <div className="border-2 border-dashed my-2" />
             <DataTable

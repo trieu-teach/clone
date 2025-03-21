@@ -14,26 +14,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { formField, FormState, Selections } from "@next-server-actions/types";
+import { CreateAction, formField, FormState } from "@next-server-actions/types";
+import searchableSelect from "../searchable-select";
 
 const initialState: FormState = {
     message: "",
     success: false,
 };
-
-
-export function CreateForm(inputFormFields: formField[]) {
+export function CreateForm<T>(inputFormFields: formField<T>[], createAction: CreateAction) {
     const [open, setOpen] = useState(false);
-    const [state, formAction, isPending] = useActionState(createStaff, initialState);
+    const [state, formAction, isPending] = useActionState(createAction, initialState);
 
-    const formFields: formField[] = useMemo(
+    const formFields: formField<T>[] = useMemo(
         () => inputFormFields,
         [],
     );
@@ -48,44 +40,32 @@ export function CreateForm(inputFormFields: formField[]) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Create New User</DialogTitle>
+                    <DialogTitle>Create New</DialogTitle>
                     <DialogDescription>
-                        Fill in the details to create a new user account.
+                        Fill in the details to create.
                     </DialogDescription>
                 </DialogHeader>
                 <form action={formAction} className="space-y-4 pt-4">
                     {formFields.map((fields) => (
-                        <div className="space-y-2" key={fields.name}>
-                            <Label htmlFor={fields.name}>{fields.label}</Label>
+                        <div className="space-y-2" key={fields.name?.toString()}>
+                            <Label htmlFor={fields.name?.toString()}>{fields.label}</Label>
                             {fields.type === "selection" ? (
-                                <Select
-                                    name={fields.name}
-                                    defaultValue={state.formData?.get(fields.name) as string}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder={fields.placeholder} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {fields.selections &&
-                                            fields.selections.map((selection: Selections) => (
-                                                <SelectItem key={selection.value} value={selection.value} >
-                                                    {selection.name}
-                                                </SelectItem>
-                                            ))}
-                                    </SelectContent>
-                                </Select>
+                                searchableSelect({
+                                    createNewSelection: fields.CreateAction,
+                                    selections: fields.selections||[],
+                               })
                             ) : (
                                 <Input
-                                    id={fields.name}
-                                    name={fields.name}
+                                    id={fields.name?.toString()}
+                                    name={fields.name?.toString()}
                                     type={fields.type}
-                                    defaultValue={state.formData?.get(fields.name) as string}
+                                    defaultValue={state.formData?.get(fields.name?.toString()) as string | undefined}
                                 />
                             )}
                         </div>
                     ))}
                     <Button type="submit" disabled={isPending}>
-                        {isPending ? "Creating..." : "Create User"}
+                        {isPending ? "Creating..." : "Create"}
                     </Button>
                     <Button variant={"ghost"} className="mx-2" onClick={() => setOpen(false)}>
                         Close

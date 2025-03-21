@@ -1,356 +1,284 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useState, useCallback, useEffect, memo, useActionState, ReactNode, useReducer, useMemo } from "react";
+import { z } from "zod"
+import { AddressSchema, CustomerSchema } from "@/schemas/customerSchema";
+import { ActionReturn, FormState } from "@next-server-actions/types";
+import { Label } from "@/components/ui/label"
+import { register } from "@/actions/customerActions";
+import { useToast } from "@/lib/custom-hooks";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import SearchableSelect from "@/components/searchable-select";
+import addressData from "@/data/address.json";
 
-// Patterns for validation
-const EMAIL = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-const NAME = /^[a-zA-ZÀ-ỹ\s]+$/;
-const PHONE_NUMBER = /^[0-9]{10}$/;
 
-export default function SignupPage() {
-  const router = useRouter();
-  const [formStep, setFormStep] = useState("basic");
-  interface Location {
-    id: string;
-    name: string;
-  }
+const CustomerSignupSchema = CustomerSchema.extend({
+    confirm_password: z.string(),
+}).merge(AddressSchema)
+type CustomerFormValues = z.infer<typeof CustomerSignupSchema>;
 
-  const [provinces, setProvinces] = useState<Location[]>([]);
-  const [districts, setDistricts] = useState<Location[]>([]);
-  const [wards, setWards] = useState<Location[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedWard, setSelectedWard] = useState("");
-  const [homeAddress, setHomeAddress] = useState("");
-  const [fullAddress, setFullAddress] = useState("");
+const initialState: FormState = {
+    message: "",
+    success: false,
+};
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-    setValue,
-    trigger,
-  } = useForm();
+const initialCustomerState: CustomerFormValues = {
+    name: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+    phone: undefined,
+    date_of_birth: undefined,
+    avatar: undefined,
+    provinceId: undefined,
+    districtId: undefined,
+    communeId: undefined,
+    detail: "",
+    skinType: undefined,
+    is_active: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+};
 
-  useEffect(() => {
-    fetch("https://esgoo.net/api-tinhthanh/1/0.htm")
-      .then((response) => response.json())
-      .then((data) => {
-        if (typeof data === "object" && Array.isArray(data.data)) {
-          setProvinces(data.data);
+// Reducer function for managing product state
+type ProductAction =
+    | { type: 'UPDATE_FIELD'; field: keyof CustomerFormValues; value: any }
+    | { type: 'RESET' };
+
+const customerReducer = (state: CustomerFormValues, action: ProductAction): CustomerFormValues => {
+    switch (action.type) {
+        case 'UPDATE_FIELD':
+            return {
+                ...state,
+                [action.field]: action.value,
+            };
+        case 'RESET':
+            return initialCustomerState;
+        default:
+            return state;
+    }
+};
+
+// Custom form field component
+const FormField = memo(({
+    name,
+    label,
+    children,
+    description,
+}: {
+    name: keyof CustomerFormValues
+    label: string
+    children: ReactNode
+    description?: string
+}) => {
+    return (
+        <div className="space-y-2">
+            <Label htmlFor={name.toString()}>{label}</Label>
+            {children}
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+    )
+});
+
+const SignupPage = () => {
+    const [state, formAction, isPending] = useActionState(register, initialState);
+    const [isLoading, setIsLoading] = useState(false);
+    const [customerState, dispatch] = useReducer(customerReducer, initialCustomerState);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: keyof CustomerFormValues) => {
+        const value = e.target.value;
+        dispatch({
+            type: 'UPDATE_FIELD',
+            field: name,
+            value: name === "phone" ? Number(value) : value,
+        });
+    }, []);
+
+    const provinceSelections = useMemo(() => {
+        return addressData.province.map((value) => ({
+            label: value.name,
+            value: value.idProvince
+        }))
+    }, [])
+
+    const districtSelections = useMemo(() => {
+        return addressData.district.filter((value) => value.idProvince === customerState.provinceId).map((value) => ({
+            label: value.name,
+            value: value.idDistrict
+        }))
+    }, [customerState.provinceId])
+
+    const communeSelections = useMemo(() => {
+        return addressData.commune.filter((value) => value.idDistrict === customerState.districtId).map((value) => ({
+            label: value.name,
+            value: value.idCommune
+        }))
+    }, [customerState.districtId])
+
+
+
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        const formData = new FormData();
+        for (const key in customerState) {
+            if (customerState.hasOwnProperty(key)) {
+                const value = customerState[key as keyof CustomerFormValues];
+                if (typeof value === 'boolean') {
+                    formData.append(key, value ? 'true' : 'false');
+                } else if (value !== undefined && value !== null) {
+                    if (key === 'createdAt' || key === 'updatedAt') {
+                        formData.append(key, Date.now().toString());
+                    }
+                    formData.append(key, value.toString());
+                }
+            }
         }
-      })
-      .catch((error) => console.error("Error fetching provinces:", error));
-  }, []);
+        const result = await register(initialState, formData);
+        useToast(result.message)
+        if (result.success) {
+            dispatch({ type: 'RESET' })
+        }
+        setIsSubmitting(false);
+    };
+    return (
+        <div className="max-w-96 bg-gray-50 p-5 mt-10 mx-auto space-y-12">
+            <h1 className="text-2xl font-semibold">Đăng kí</h1>
+            <form action={formAction} id="add-product-form" className="space-y-6">
+                <Tabs defaultValue="details" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="details">Product Details</TabsTrigger>
+                        <TabsTrigger value="media">Media & Options</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="details" className="space-y-4 pt-4">
+                        <FormField name="email" label="Email">
+                            <Input
+                                type="text"
+                                id="email"
+                                name="email"
+                                value={customerState.email}
+                                onChange={(e) => handleInputChange(e, "email")}
+                                placeholder="Product name"
+                            />
+                        </FormField>
+                        <FormField name="password" label="Password">
+                            <Input
+                                type="password"
+                                id="password"
+                                name="password"
+                                value={customerState.password}
+                                onChange={(e) => handleInputChange(e, "password")}
+                                placeholder="Product name"
+                            />
+                        </FormField>
+                        <FormField name="confirm_password" label="Confirm passsword">
+                            <Input
+                                type="password"
+                                id="confirm_password"
+                                name="confirm_password"
+                                value={customerState.confirm_password}
+                                onChange={(e) => handleInputChange(e, "confirm_password")}
+                                placeholder="Product name"
+                            />
+                        </FormField>
+                        <FormField name="name" label="Name">
+                            <Input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={customerState.name}
+                                onChange={(e) => handleInputChange(e, "name")}
+                                placeholder=""
+                            />
+                        </FormField>
+                    </TabsContent>
+                    <TabsContent value="media" className="space-y-4 pt-4">
+                        <FormField name="provinceId" label="Province">
+                            {isLoading ? (
+                                <div>Loading...</div>
+                            ) : (
+                                <SearchableSelect
+                                    selections={provinceSelections}
+                                    value={customerState.provinceId}
+                                    onChange={(value) => {
+                                        dispatch({
+                                            type: 'UPDATE_FIELD',
+                                            field: "provinceId",
+                                            value: value,
+                                        })
+                                    }}
+                                    placeholder="Select province"
+                                />
+                            )}
+                        </FormField>
+                        <FormField name="districtId" label="District">
+                            {isLoading ? (
+                                <div>Loading...</div>
+                            ) : (
+                                <SearchableSelect
+                                    selections={districtSelections}
+                                    value={customerState.districtId}
+                                    onChange={(value) => {
+                                        dispatch({
+                                            type: 'UPDATE_FIELD',
+                                            field: "districtId",
+                                            value: value,
+                                        })
+                                    }}
+                                    placeholder="Select district"
+                                />
+                            )}
+                        </FormField>
+                        <FormField name="communeId" label="CommuneId">
+                            {isLoading ? (
+                                <div>Loading...</div>
+                            ) : (
+                                <SearchableSelect
+                                    selections={communeSelections}
+                                    value={customerState.communeId}
+                                    onChange={(value) => {
+                                        dispatch({
+                                            type: 'UPDATE_FIELD',
+                                            field: "communeId",
+                                            value: value,
+                                        })
+                                    }}
+                                    placeholder="Select commune"
+                                />
+                            )}
+                        </FormField>
 
-  useEffect(() => {
-    if (selectedProvince) {
-      fetch(`https://esgoo.net/api-tinhthanh/2/${selectedProvince}.htm`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (Array.isArray(data.data)) {
-            setDistricts(data.data);
-          }
-        })
-        .catch((error) => console.error("Error fetching districts:", error));
-    }
-  }, [selectedProvince]);
+                        <FormField name="detail" label="Address detail">
+                            <Input
+                                type="text"
+                                id="detail"
+                                name="detail"
+                                value={customerState.detail}
+                                onChange={(e) => handleInputChange(e, "detail")}
+                                placeholder=""
+                            />
+                        </FormField>
 
-  useEffect(() => {
-    if (selectedDistrict) {
-      fetch(`https://esgoo.net/api-tinhthanh/3/${selectedDistrict}.htm`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (Array.isArray(data.data)) {
-            setWards(data.data);
-          }
-        })
-        .catch((error) => console.error("Error fetching wards:", error));
-    }
-  }, [selectedDistrict]);
-
-  const handleNextStep = async () => {
-    const result = await trigger([
-      "lastName",
-      "firstName",
-      "username",
-      "password",
-      "confirmPassword",
-      "email",
-      "phoneNumber",
-    ]);
-    if (result) {
-      setFormStep("address");
-    }
-  };
-
-  const onSubmit = async (data: any) => {
-    // Here you would typically call your API to register the user
-    console.log(data);
-    // Redirect to login page after successful signup
-    router.push("/login");
-  };
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            Đăng Ký
-          </CardTitle>
-          <CardDescription className="text-center">
-            {formStep === "basic"
-              ? "Đăng ký ngay để nhận nhiều ưu đãi"
-              : "Nhập thông tin địa chỉ (Bạn có thể bỏ qua và cập nhật sau)"}
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            {formStep === "basic" && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Họ</Label>
-                  <Input
-                    id="lastName"
-                    {...register("lastName", {
-                      required: "Họ là bắt buộc",
-                      pattern: { value: NAME, message: "Họ không hợp lệ" },
-                    })}
-                  />
-                  {errors.lastName?.message && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.lastName.message)}
+                    </TabsContent>
+                </Tabs>
+                {state.message && (
+                    <p className={state.success ? "text-green-600" : "text-red-600"}>
+                        {state.message}
                     </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Tên</Label>
-                  <Input
-                    id="firstName"
-                    {...register("firstName", {
-                      required: "Tên là bắt buộc",
-                      pattern: { value: NAME, message: "Tên không hợp lệ" },
-                    })}
-                  />
-                  {errors.firstName?.message && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.firstName.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="username">Tên đăng nhập</Label>
-                  <Input
-                    id="username"
-                    {...register("username", {
-                      required: "Tên đăng nhập là bắt buộc",
-                      minLength: {
-                        value: 5,
-                        message: "Tên đăng nhập phải có ít nhất 5 ký tự",
-                      },
-                    })}
-                  />
-                  {errors.username && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.username.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mật khẩu</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    {...register("password", {
-                      required: "Mật khẩu là bắt buộc",
-                      minLength: {
-                        value: 5,
-                        message: "Mật khẩu phải có ít nhất 5 ký tự",
-                      },
-                    })}
-                  />
-                  {errors.password?.message && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.password.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    {...register("confirmPassword", {
-                      required: "Xác nhận mật khẩu là bắt buộc",
-                      validate: (value) =>
-                        value === getValues("password") ||
-                        "Mật khẩu không khớp",
-                    })}
-                  />
-                  {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.confirmPassword.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...register("email", {
-                      required: "Email là bắt buộc",
-                      pattern: { value: EMAIL, message: "Email không hợp lệ" },
-                    })}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.email.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phoneNumber">Số điện thoại</Label>
-                  <Input
-                    id="phoneNumber"
-                    {...register("phoneNumber", {
-                      required: "Số điện thoại là bắt buộc",
-                      pattern: {
-                        value: PHONE_NUMBER,
-                        message: "Số điện thoại không hợp lệ",
-                      },
-                    })}
-                  />
-                  {errors.phoneNumber && (
-                    <p className="text-red-500 text-sm">
-                      {String(errors.phoneNumber.message)}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-            {formStep === "address" && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="province">Tỉnh thành</Label>
-                  <Select
-                    onValueChange={(value: string) =>
-                      setSelectedProvince(value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn tỉnh thành" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {provinces.map((province) => (
-                        <SelectItem key={province.id} value={province.id}>
-                          {province.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="district">Quận/Huyện</Label>
-                  <Select
-                    onValueChange={(value: string) =>
-                      setSelectedDistrict(value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn quận/huyện" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {districts.map((district) => (
-                        <SelectItem key={district.id} value={district.id}>
-                          {district.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ward">Phường/Xã</Label>
-                  <Select
-                    onValueChange={(value: string) => setSelectedWard(value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn phường/xã" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {wards.map((ward) => (
-                        <SelectItem key={ward.id} value={ward.id}>
-                          {ward.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="homeAddress">Số nhà</Label>
-                  <Input
-                    id="homeAddress"
-                    value={homeAddress}
-                    onChange={(e) => setHomeAddress(e.target.value)}
-                  />
-                </div>
-              </>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-2">
-            {formStep === "basic" && (
-              <Button type="button" onClick={handleNextStep} className="w-full">
-                Tiếp theo
-              </Button>
-            )}
-            {formStep === "address" && (
-              <>
-                <Button type="submit" className="w-full">
-                  Đăng ký
+                )}
+                <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isSubmitting ? "Creating..." : "Đăng kí"}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setFormStep("basic")}
-                  className="w-full"
-                >
-                  Quay lại
-                </Button>
-              </>
-            )}
-            <div className="text-center space-y-2">
-              <Link href="/guest/login" className="text-sm hover:underline">
-                Quay lại đăng nhập nếu bạn đã có tài khoản
-              </Link>
-              <Link href="/guest" className="text-sm hover:underline block">
-                Trở về trang chủ
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
-  );
+            </form>
+        </div>
+    )
 }
+export default SignupPage;
+

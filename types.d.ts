@@ -1,4 +1,5 @@
-import { Customer } from "@/schemas/customerSchema";
+import { Customer, CustomerSchema } from "@/schemas/customerSchema";
+import { StaffSchema } from "@/schemas/staffSchema";
 
 // Update the DataTableProps type
 interface FilterDataTableProps<TData, TValue> {
@@ -66,16 +67,40 @@ interface FormState {
 }
 
 
-type Selections = {
-    value: string;
-    name: string;
-  };
-  
-  type formField<T> = {
-    name: keyof z.infer<typeof T>;
+type Selection = {
+    value: string | number;
     label: string;
-    type: string;
-    placeholder?: string;
-    selections?: Selections[];
-  };
+};
 
+type formField<T> = {
+    name: keyof T;
+    label: string;
+    type: HTMLInputTypeAttribute;
+    placeholder?: string;
+    selections?: Selection[];
+    CreateAction?: CreateAction
+};
+type ActionReturn = {
+    message: string;
+    success: boolean;
+    formData?: FormData;
+}
+
+type CreateAction = (prevState: any, formData: FormData) => Promise<ActionReturn>
+
+type SessionCustomer = z.infer<typeof CustomerSchema.pick<{ name: true; email: true }>>
+type AdminSidebarProps = {
+    title: string
+    href: string
+    icon?: any
+  }
+  
+type SessionStaff = z.infer<typeof StaffSchema.pick<{ name: true; email: true, role:true }>>
+
+type PaginationedData<T> = {
+    data: T[]
+    page: number
+    limit: number
+    totalPages: number
+    totalDocs: number
+}

@@ -15,33 +15,30 @@ const provinceIds = addressData.province.map((province) => province.idProvince);
 const districtIds = addressData.district.map((district) => district.idDistrict);
 const communeIds = addressData.commune.map((commune) => commune.idCommune);
 
+export const AddressSchema = z.object({
+    // Check if the provinceId is valid
+    // data from @/data/address.json
+    provinceId: z.string().optional().refine((value) => value == null || provinceIds.includes(value), {
+        message: "Invalid provinceId",
+    }),
+    districtId: z.string().optional().refine((value) => value == null || districtIds.includes(value), {
+        message: "Invalid districtId",
+    }),
+    communeId: z.string().optional().refine((value) => value == null || communeIds.includes(value), {
+        message: "Invalid communeId",
+    }),
+    detail: z.string(),
+})
+export type Address = z.infer<typeof AddressSchema>;
+
 // Define the schema (!!important)
 export const CustomerSchema = z.object({
     name: z.string().min(3).max(20).default("test"),
     email: z.string().email(),
-    password: z.string().min(8).max(20),
+    password: z.string(),
     phone: z.optional(z.string().regex(phoneRegex)),
     date_of_birth: z.optional(z.date()),
-    address: z.optional(
-        z.union([
-            z.object({
-                // Check if the provinceId is valid
-                // data from @/data/address.json
-                provinceId: z.string().optional().refine((value) => value == null || provinceIds.includes(value), {
-                    message: "Invalid provinceId",
-                }),
-                districtId: z.string().optional().refine((value) => value == null || districtIds.includes(value), {
-                    message: "Invalid districtId",
-                }),
-                communeId: z.string().optional().refine((value) => value == null || communeIds.includes(value), {
-                    message: "Invalid communeId",
-                }),
-                detail: z.string(),
-            }),
-            z.undefined()
-        ])
-    ),
-    addressDetail: z.string(),
+    address: z.optional(AddressSchema),
     avatar: z.optional(z.string()),
     skinType: z.optional(zId("SkinType")),
     is_active: z.boolean().default(true),
