@@ -66,8 +66,12 @@ export default function CheckoutPage() {
         const newOrder = {
             shippingAddress: shippingAddress,
             status: "pending",
-            final_amount: total,
+            total_amount: total,
+            final_amount: total - discount,
             payment_method: "cash",
+            discounted_amount: discount,
+            shipping_cost: shippingCost,
+            tax_rate: taxRate,
             customer_id:(session?.user as z.infer<typeof zCustomerSchemaUdate>)?._id
         }
         const newOrderDetail = items.map((item) => {

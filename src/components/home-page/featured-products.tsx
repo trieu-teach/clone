@@ -38,7 +38,7 @@ export function FeaturedProducts() {
                 const mirroredProducts = [...products];
                 while (mirroredProducts.length < 4) {
                     const randomIndex = Math.floor(Math.random() * products.length);
-                    mirroredProducts.push({ ...products[randomIndex], _id: `${products[randomIndex]._id}-mirror-${mirroredProducts.length}` });
+                    mirroredProducts.push({ ...products[randomIndex]});
                 }
                 setProducts(mirroredProducts);
             };
