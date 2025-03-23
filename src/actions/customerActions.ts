@@ -89,7 +89,7 @@ export const register = async (prevState: any, formData: FormData): Promise<Acti
     }
     customerData.password = await bcrypt.hash(customerData.password, 10);
     await CustomerModel.create(customerData);
-    redirect("/");
+    // redirect("/");
     return { message: "Đăng kí thành công!", success: true, formData }
   } catch (error) {
     console.log("error instanceof ZodError:",error instanceof ZodError,error);

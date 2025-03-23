@@ -23,10 +23,10 @@ const link = [
     title: "Blog",
     link: "/blog-page"
   },
-  {
-    title: "Từ Điển",
-    link: "/dictionary-page"
-  },
+  // {
+  //   title: "Từ Điển",
+  //   link: "/dictionary-page"
+  // },
 ]
 
 const dropdown = [
