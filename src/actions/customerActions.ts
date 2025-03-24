@@ -71,12 +71,13 @@ export const register = async (prevState: any, formData: FormData): Promise<Acti
     // type convertion
     const convertedData = {
       ...rawData,
-      address: {
+      address: [{
         provinceId: rawData.provinceId,
         districtId: rawData.districtId,
         communeId: rawData.communeId,
+        default:true,
         detail: rawData.detail,
-      },
+      }],
       is_active: true,
       createdAt: new Date(),
       updatedAt: new Date(),

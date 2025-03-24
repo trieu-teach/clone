@@ -39,6 +39,7 @@ const initialCustomerState: CustomerFormValues = {
     detail: "",
     skinType: undefined,
     is_active: true,
+    isDefault: true, // Add this line
     createdAt: new Date(),
     updatedAt: new Date(),
 };

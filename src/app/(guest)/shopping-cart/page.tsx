@@ -15,7 +15,7 @@ import { zCategorySchemaUdate } from "@/schemas/categorySchema";
 
 export default function ShoppingCart() {
   const { items, setQuantity, removeItem } = useCart()
-  const [categories, setCategories] = useState <z.infer<typeof zCategorySchemaUdate>[]>([])
+  const [categories, setCategories] = useState<z.infer<typeof zCategorySchemaUdate>[]>([])
   useEffect(() => {
     fetch("/api/category")
       .then((res) => res.json())
@@ -29,13 +29,11 @@ export default function ShoppingCart() {
 
 
   const subtotal = items.reduce(
-    (total, { product }) => total + product.price,
+    (total, { product, quantity }) => total + product.price * quantity,
     0
   )
-  const shippingCost = 12.0;
-  const discount = 10.0;
-  const tax = subtotal * 0.18;
-  const total = subtotal + shippingCost - discount + tax;
+  const discount = 0;
+  const total = subtotal - discount;
 
   return (
     <div className="mt-10">
@@ -50,25 +48,26 @@ export default function ShoppingCart() {
                 <TableCell>TÊN SẢN PHẨM</TableCell>
                 <TableCell>DANH MỤC</TableCell>
                 <TableCell>SỐ LƯƠNG</TableCell>
-                <TableCell>GIÁ</TableCell>
+                <TableCell>ĐƠN GIÁ</TableCell>
+                <TableCell>THÀNH TIỀN</TableCell>
                 <TableCell>XÓA</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item,key) => (
+              {items.map((item, key) => (
                 <TableRow key={key}>
                   <TableCell>
                     <div className="w-[50px] h-[50px] rounded-lg bg-gray-300 flex items-center justify-center overflow-hidden">
-                    <Image
-                            src={item.product.image_url || "/placeholder.svg"}
-                            alt={item.product.name}
-                            className="rounded-lg object-cover w-full aspect-square mb-8 cursor-pointer"
-                            width={150}
-                            height={150}
-                            onError={(e) => {
-                                e.currentTarget.src = "/placeholder.svg";
-                            }}
-                        />
+                      <Image
+                        src={item.product.image_url || "/placeholder.svg"}
+                        alt={item.product.name}
+                        className="rounded-lg object-cover w-full aspect-square mb-8 cursor-pointer"
+                        width={150}
+                        height={150}
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
                     </div>
                   </TableCell>
                   <TableCell>{item.product.name}</TableCell>
@@ -79,12 +78,13 @@ export default function ShoppingCart() {
                       value={item.quantity}
                       onChange={(e) => {
                         const newQuantity = Number.parseInt(e.target.value);
-                        setQuantity(item.product._id as string,newQuantity)
+                        setQuantity(item.product._id as string, newQuantity)
                       }}
                       className="w-16"
                     />
                   </TableCell>
                   <TableCell>{item.product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                  <TableCell>{(item.product.price * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
                   <TableCell>
                     <Button variant="destructive" onClick={() => removeItem(item.product._id as string)} size="icon">
                       <Trash size={16} />
@@ -107,9 +107,7 @@ export default function ShoppingCart() {
             </div>
             <div>
               <p>Tổng tiền hàng: {subtotal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-              <p>Phí vận chuyển: {shippingCost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
               <p>Giảm giá: -{discount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-              <p>Thuế (18%): {tax.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
               <p className="text-lg font-bold">Tổng cộng: {total.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
             </div>
           </div>
