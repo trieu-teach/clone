@@ -2,7 +2,7 @@
 
 import { connectDB } from '@/lib/mongodb';
 import CustomerModel from "@/models/customer";
-import { CustomerSchema, zCustomerSchemaUdate } from '@/schemas/customerSchema';
+import { Customer, CustomerSchema, zCustomerSchemaUdate } from '@/schemas/customerSchema';
 import { ActionReturn } from '@next-server-actions/types';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
@@ -71,12 +71,16 @@ export const register = async (prevState: any, formData: FormData): Promise<Acti
     // type convertion
     const convertedData = {
       ...rawData,
-      address: {
+      addresses: [{
         provinceId: rawData.provinceId,
         districtId: rawData.districtId,
         communeId: rawData.communeId,
+        isDefault: true,
         detail: rawData.detail,
-      },
+        phone: rawData.phone,
+        name: rawData.name,
+        email: rawData.email,
+      }],
       is_active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -89,7 +93,6 @@ export const register = async (prevState: any, formData: FormData): Promise<Acti
     }
     customerData.password = await bcrypt.hash(customerData.password, 10);
     await CustomerModel.create(customerData);
-    // redirect("/");
     return { message: "Đăng kí thành công!", success: true, formData }
   } catch (error) {
     console.log("error instanceof ZodError:",error instanceof ZodError,error);

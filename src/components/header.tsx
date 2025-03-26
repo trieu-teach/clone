@@ -83,6 +83,7 @@ export default function Header() {
           {isDropdownOpen && (
             <div className="absolute flex flex-col w-max right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-md z-10">
               <p className="px-4 py-2 text-sm">Hello, {(session?.user as SessionCustomer)?.name}!</p>
+              <div className="border-t border-gray-300 mx-2"></div>
               {dropdown.map((item, index) => (
                 <Link
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

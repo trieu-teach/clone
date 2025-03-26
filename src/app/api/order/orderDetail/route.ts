@@ -1,6 +1,8 @@
-import { SortOrder } from "mongoose";
-import { getProductsFromDB } from "./util";
 
+import { SortOrder } from 'mongoose';
+import { getOrderDetailsFromDB } from './util';
+
+// Separate function to fetch order data from the database
 
 
 const GET = async (req: Request) => {
@@ -8,17 +10,15 @@ const GET = async (req: Request) => {
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '10', 10);
+        const orderId = searchParams.get('orderId')|| undefined;
+        const search = searchParams.get('name') || ''; // Use 'name' for search
         const sortBy = searchParams.get('sortBy') || 'createdAt';
         const sortOrder = (searchParams.get('sortOrder') || 'desc') as SortOrder;
-        const id = searchParams.get('id') || undefined;
-        const name = searchParams.get('name') || undefined;
-        const isActive = searchParams.get('is_active') ? searchParams.get('is_active') === 'true' : undefined;
-        const randomOrder = searchParams.get('randomOrder') === 'true';
 
-        const result = await getProductsFromDB({ page, limit, sortBy, sortOrder, id, name, isActive, randomOrder });
+        const result = await getOrderDetailsFromDB({page, limit, orderId, search, sortBy, sortOrder});
 
         if ("message" in result) {
-            if (result.message === "Product not found") {
+            if(result.message === "Order Details not found"){
                 return new Response(JSON.stringify(result), {
                     status: 404,
                     headers: { 'Content-Type': 'application/json' },
@@ -29,7 +29,12 @@ const GET = async (req: Request) => {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
-
+        if(orderId){
+            return new Response(JSON.stringify(result), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
         return new Response(JSON.stringify(result), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
@@ -42,5 +47,6 @@ const GET = async (req: Request) => {
         });
     }
 }
+
 
 export { GET }

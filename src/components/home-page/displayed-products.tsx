@@ -33,12 +33,15 @@ export function DisplayedProducts() {
     }, []);
 
     useEffect(() => {
-        if (products.length < 8 && !isLoading) {
+        if (products.length < 8 && !isLoading && products.length > 0) {
             const mirrorProducts = () => {
                 const mirroredProducts = [...products];
                 while (mirroredProducts.length < 8) {
                     const randomIndex = Math.floor(Math.random() * products.length);
-                    mirroredProducts.push({ ...products[randomIndex], _id: `${products[randomIndex]._id}-mirror-${mirroredProducts.length}` });
+                    const product = products[randomIndex];
+                    if(product){
+                        mirroredProducts.push({ ...product});
+                    }
                 }
                 setProducts(mirroredProducts);
             };

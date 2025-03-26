@@ -33,12 +33,15 @@ export function FeaturedProducts() {
     }, []);
 
     useEffect(() => {
-        if (products.length < 4 && !isLoading) {
+        if (products.length < 4 && !isLoading && products.length > 0) {
             const mirrorProducts = () => {
                 const mirroredProducts = [...products];
                 while (mirroredProducts.length < 4) {
                     const randomIndex = Math.floor(Math.random() * products.length);
-                    mirroredProducts.push({ ...products[randomIndex]});
+                    const product = products[randomIndex];
+                    if(product){
+                        mirroredProducts.push({ ...product});
+                    }
                 }
                 setProducts(mirroredProducts);
             };
@@ -52,30 +55,35 @@ export function FeaturedProducts() {
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product, key) => (
-                <Card key={key} className="flex-shrink-0 w-full bg-white">
-                    <CardContent className="p-3">
-                        <Image
-                            src={product.image_url || "/placeholder.svg"}
-                            alt={product.name}
-                            className="rounded-lg object-cover w-full aspect-square mb-4 cursor-pointer"
-                            width={150}
-                            height={150}
-                            onError={(e) => {
-                                e.currentTarget.src = "/placeholder.svg";
-                            }}
-                        />
-                        <h3 className="font-semibold text-md mb-2 cursor-pointer">
-                            {product.name}
-                        </h3>
-                        <p className="text-xs text-gray-400 mb-4">
-                            {product.description}
-                        </p>
-                        <AddToCartButton product={product} />
-                        
-                    </CardContent>
-                </Card>
-            ))}
+            {products.map((product, key) => {
+                if(!product || !product._id){
+                    return null;
+                }
+                return (
+                    <Card key={key} className="flex-shrink-0 w-full bg-white">
+                        <CardContent className="p-3">
+                            <Image
+                                src={product.image_url || "/placeholder.svg"}
+                                alt={product.name}
+                                className="rounded-lg object-cover w-full aspect-square mb-4 cursor-pointer"
+                                width={150}
+                                height={150}
+                                onError={(e) => {
+                                    e.currentTarget.src = "/placeholder.svg";
+                                }}
+                            />
+                            <h3 className="font-semibold text-md mb-2 cursor-pointer">
+                                {product.name}
+                            </h3>
+                            <p className="text-xs text-gray-400 mb-4">
+                                {product.description}
+                            </p>
+                            <AddToCartButton product={product} />
+
+                        </CardContent>
+                    </Card>
+                )
+            })}
         </div>
 
     )
