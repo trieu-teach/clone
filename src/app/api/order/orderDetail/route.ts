@@ -1,58 +1,41 @@
-import { connectDB } from '@/lib/mongodb';
-import OrderDetailModel from "@/models/orderDetail";
+
 import { SortOrder } from 'mongoose';
+import { getOrderDetailsFromDB } from './util';
+
+// Separate function to fetch order data from the database
+
+
 const GET = async (req: Request) => {
     try {
-        await connectDB();
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '10', 10);
-        const id = searchParams.get('id');
-        const search = searchParams.get('search') || '';
-        const sortField = searchParams.get('sortField') || 'createdAt';
+        const orderId = searchParams.get('orderId')|| undefined;
+        const search = searchParams.get('name') || ''; // Use 'name' for search
+        const sortBy = searchParams.get('sortBy') || 'createdAt';
         const sortOrder = (searchParams.get('sortOrder') || 'desc') as SortOrder;
 
+        const result = await getOrderDetailsFromDB({page, limit, orderId, search, sortBy, sortOrder});
 
-        const skip = (page - 1) * limit;
-
-        if (id) {
-            const orderDetail = await OrderDetailModel.findById(id);
-            if (!orderDetail) {
-                return new Response(JSON.stringify({ message: "Order detail not found" }), {
+        if ("message" in result) {
+            if(result.message === "Order Details not found"){
+                return new Response(JSON.stringify(result), {
                     status: 404,
                     headers: { 'Content-Type': 'application/json' },
                 });
             }
-            return new Response(JSON.stringify(orderDetail), {
+            return new Response(JSON.stringify(result), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+        if(orderId){
+            return new Response(JSON.stringify(result), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
-
-        const query = search
-            ? {
-                $or: [
-                    { orderId: { $regex: search, $options: 'i' } },
-                    { productId: { $regex: search, $options: 'i' } },
-                ],
-            }
-            : {};
-
-        const totalDocs = await OrderDetailModel.countDocuments(query);
-        const orderDetails = await OrderDetailModel.find(query)
-            .sort({
-                [sortField]: sortOrder,
-            })
-            .skip(skip)
-            .limit(limit);
-
-        return new Response(JSON.stringify({
-            data: orderDetails,
-            page,
-            limit,
-            totalPages: Math.ceil(totalDocs / limit),
-            totalDocs,
-        }), {
+        return new Response(JSON.stringify(result), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
@@ -64,5 +47,6 @@ const GET = async (req: Request) => {
         });
     }
 }
+
 
 export { GET }

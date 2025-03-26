@@ -2,10 +2,12 @@
 
 import { connectDB } from '@/lib/mongodb';
 import OrderModel from "@/models/order";
-import { OrderSchema, zOrderSchemaUdate } from '@/schemas/orderSchema';
+import {  OrderSchema, zOrderSchemaUdate } from '@/schemas/orderSchema';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 import OrderDetailModel from '@/models/orderDetail';
+import { ActionReturn, FormState } from '@next-server-actions/types';
+import { redirect } from 'next/navigation';
 
 export async function createOrder(formData: FormData) {
   try {
@@ -63,13 +65,13 @@ export async function deleteOrder(orderId: string) { // Note: Pass ID directly
 }
 }
 
-export async function checkOutOrder(formData: FormData) {
+export async function checkOutOrder(formData: FormData):Promise<ActionReturn> {
     try {
         const rawData = Object.fromEntries(formData.entries());
         const orderData = JSON.parse(rawData.order as string);
         const orderDetailData = JSON.parse(rawData.orderDetail as string);
+        console.log(orderData, orderDetailData)
         const orderParsed = OrderSchema.parse(orderData);
-        
         await connectDB();
         const order = await OrderModel.create(orderParsed);
         if (orderDetailData) {
@@ -78,14 +80,13 @@ export async function checkOutOrder(formData: FormData) {
                 order_id: order._id
             })));
         }
-
-        revalidatePath('/orders'); // Revalidate the order list page
-        return { message: 'Order created successfully!' };
+        formData.append("orderId", order._id.toString());
+        return { message: "order created successfully!", success: true, formData };
     } catch (error) {
         console.log(error)
         if (error instanceof ZodError) {
-            return { error: error.flatten() };
+            return { message: JSON.stringify(error.flatten().fieldErrors), success: false, formData };
         }
-        return { error: 'Failed to create order.' }; // Generic error message
+        return { message: JSON.stringify(error), success: false, formData }; // Generic error message
     }
 }

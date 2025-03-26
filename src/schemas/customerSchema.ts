@@ -18,6 +18,11 @@ const communeIds = addressData.commune.map((commune) => commune.idCommune);
 export const AddressSchema = z.object({
     // Check if the provinceId is valid
     // data from @/data/address.json
+    name: z.string().optional(),
+    phone:  z.optional(z.string().regex(phoneRegex)),
+    email: z.string().email().optional(),
+    detail: z.string(),
+    isDefault: z.boolean().default(false), // Add a flag to indicate the default address
     provinceId: z.string().optional().refine((value) => value == null || provinceIds.includes(value), {
         message: "Invalid provinceId",
     }),
@@ -27,10 +32,6 @@ export const AddressSchema = z.object({
     communeId: z.string().optional().refine((value) => value == null || communeIds.includes(value), {
         message: "Invalid communeId",
     }),
-    detail: z.string(),
-    isDefault: z.boolean().default(false), // Add a flag to indicate the default address
-    name: z.string().optional(),
-    phone:  z.optional(z.string().regex(phoneRegex)),
 });
 export type Address = z.infer<typeof AddressSchema>;
 

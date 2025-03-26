@@ -7,17 +7,17 @@ import { Printer, Send } from "lucide-react"
 
 export default function SimpleInvoice() {
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <Card className="max-w-4xl mx-auto border-2 border-gray-700 bg-gray-900 text-white">
+    <div className="min-h-screenp-4">
+      <Card className="max-w-4xl mx-auto border-2">
         <CardHeader>
           <div className="flex justify-between items-center mb-8">
             <div className="space-y-2">
               <div className="flex gap-4">
-                <span className="text-gray-300">Date</span>
+                <span className="">Date</span>
                 <span>May 22, 2021</span>
               </div>
               <div className="flex gap-4">
-                <span className="text-gray-300">Transaction id:</span>
+                <span className="">Transaction id:</span>
                 <span>#18414</span>
               </div>
             </div>
@@ -52,22 +52,22 @@ export default function SimpleInvoice() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-16 text-gray-300">#</TableHead>
-                <TableHead className="text-gray-300">ITEM</TableHead>
-                <TableHead className="text-gray-300">DESCRIPTION</TableHead>
-                <TableHead className="text-right text-gray-300">ITEM COST</TableHead>
-                <TableHead className="text-right text-gray-300">PRODUCTS ITEM</TableHead>
-                <TableHead className="text-right text-gray-300">TOTAL</TableHead>
+                <TableHead className="w-16 ">#</TableHead>
+                <TableHead className="">ITEM</TableHead>
+                <TableHead className="">DESCRIPTION</TableHead>
+                <TableHead className="text-right ">ITEM COST</TableHead>
+                <TableHead className="text-right ">PRODUCTS ITEM</TableHead>
+                <TableHead className="text-right ">TOTAL</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell className="text-white">1</TableCell>
-                <TableCell className="text-white">Rado Watch</TableCell>
-                <TableCell className="text-white">Men Watch for Gold Color</TableCell>
-                <TableCell className="text-right text-white">$330.00</TableCell>
-                <TableCell className="text-right text-white">1</TableCell>
-                <TableCell className="text-right text-white">$330.00</TableCell>
+                <TableCell className="">1</TableCell>
+                <TableCell className="">Rado Watch</TableCell>
+                <TableCell className="">Men Watch for Gold Color</TableCell>
+                <TableCell className="text-right ">$330.00</TableCell>
+                <TableCell className="text-right ">1</TableCell>
+                <TableCell className="text-right ">$330.00</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -89,7 +89,7 @@ export default function SimpleInvoice() {
 
           <div className="mt-8 space-y-4">
             <h3 className="font-semibold">Terms & Condition</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm ">
               Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical
               Latin literature from 45 BC, making it over
             </p>
@@ -97,11 +97,11 @@ export default function SimpleInvoice() {
         </CardContent>
 
         <CardFooter className="flex justify-end gap-4">
-          <Button variant="outline" className=" bg-purple-600 border-black text-white" onClick={() => window.print()}>
+          <Button variant="outline" className=" " onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" />
             Print
           </Button>
-          <Button className="bg-purple-600  text-white hover:bg-white-700">
+          <Button className="">
             <Send className="mr-2 h-4 w-4" />
             Send Invoice
           </Button>

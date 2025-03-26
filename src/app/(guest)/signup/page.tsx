@@ -97,7 +97,7 @@ const SignupPage = () => {
         dispatch({
             type: 'UPDATE_FIELD',
             field: name,
-            value: name === "phone" ? Number(value) : value,
+            value: value,
         });
     }, []);
 
@@ -262,6 +262,17 @@ const SignupPage = () => {
                                 name="detail"
                                 value={customerState.detail}
                                 onChange={(e) => handleInputChange(e, "detail")}
+                                placeholder=""
+                            />
+                        </FormField>
+
+                        <FormField name="phone" label="Phone">
+                            <Input
+                                type="text"
+                                id="phone"
+                                name="phone"
+                                value={customerState.phone}
+                                onChange={(e) => handleInputChange(e, "phone")}
                                 placeholder=""
                             />
                         </FormField>

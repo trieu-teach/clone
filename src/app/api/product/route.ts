@@ -1,71 +1,36 @@
-import { connectDB } from '@/lib/mongodb';
-import ProductModel from "@/models/product";
-import { FilterQuery, SortOrder } from 'mongoose';
+import { SortOrder } from "mongoose";
+import { getProductsFromDB } from "./util";
+
+
 
 const GET = async (req: Request) => {
     try {
-        await connectDB();
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '10', 10);
         const sortBy = searchParams.get('sortBy') || 'createdAt';
-        const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
-        const id = searchParams.get('id');
-        const nameFilter = searchParams.get('name');
-        const isActiveFilter = searchParams.get('is_active');
+        const sortOrder = (searchParams.get('sortOrder') || 'desc') as SortOrder;
+        const id = searchParams.get('id') || undefined;
+        const name = searchParams.get('name') || undefined;
+        const isActive = searchParams.get('is_active') ? searchParams.get('is_active') === 'true' : undefined;
         const randomOrder = searchParams.get('randomOrder') === 'true';
-        const skip = (page - 1) * limit;
 
-        if (id) {
-            const product = await ProductModel.findById(id);
-            if (!product) {
-                return new Response(JSON.stringify({ message: "Product not found" }), {
+        const result = await getProductsFromDB({ page, limit, sortBy, sortOrder, id, name, isActive, randomOrder });
+
+        if ("message" in result) {
+            if (result.message === "Product not found") {
+                return new Response(JSON.stringify(result), {
                     status: 404,
                     headers: { 'Content-Type': 'application/json' },
                 });
             }
-            return new Response(JSON.stringify(product), {
-                status: 200,
+            return new Response(JSON.stringify(result), {
+                status: 500,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
-        const filter: FilterQuery<typeof ProductModel> = {};
-        if (nameFilter) {
-            filter.name = { $regex: nameFilter, $options: 'i' };
-        }
-        if (isActiveFilter) {
-            filter.is_active = isActiveFilter === 'true';
-        }
 
-        const totalDocs = await ProductModel.countDocuments(filter);
-        let products;
-        if (randomOrder) {
-            // Aggregate pipeline for random ordering
-            products = await ProductModel.aggregate([
-                { $match: filter },
-                { $sample: { size: limit } },
-                { $skip: skip },
-            ]);
-        } else {
-            const sort: { [key: string]: SortOrder } = {
-                [sortBy]: sortOrder as SortOrder,
-                _id: 1 as SortOrder,
-            };
-
-            products = await ProductModel.find(filter)
-                .sort(sort)
-                .skip(skip)
-                .limit(limit);
-        }
-
-
-        return new Response(JSON.stringify({
-            data: products,
-            page,
-            limit,
-            totalPages: Math.ceil(totalDocs / limit),
-            totalDocs,
-        }), {
+        return new Response(JSON.stringify(result), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });

@@ -12,18 +12,6 @@ export const OrderDetailSchema = z.object({
     price: z.number().min(0),
     createdAt: z.date().default(new Date()),
     updatedAt: z.date().default(new Date()),
-    refund: z.optional(z.object({
-        refund_quantity: z.number().min(1), // Quantity being refunded
-        refund_amount: z.number().min(0), // Total amount refunded for this item
-        refund_date: z.date().default(new Date()),
-        refund_reason: z.string().min(1),
-        refund_status: z.enum([
-            "pending",
-            "processing",
-            "completed",
-            "cancelled"
-        ]),
-    })),
 });
 
 

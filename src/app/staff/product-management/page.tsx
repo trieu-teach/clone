@@ -217,6 +217,7 @@ export default function ExampleTablePage() {
                 enableSorting: false,
                 header: ({ table }) => (
                     <Checkbox
+                        className="-translate-x-4"
                         checked={table.getIsAllRowsSelected()}
                         onCheckedChange={(value) => {
                             table.toggleAllRowsSelected(!!value);
@@ -240,6 +241,7 @@ export default function ExampleTablePage() {
 
                 cell: ({ row }) => (
                     <Checkbox
+                        className="translate-x-4"
                         checked={selectedRows.has(row.original._id)}
                         onCheckedChange={(value) => {
                             handleRowSelectionChange(row.original._id, !!value);
@@ -366,7 +368,6 @@ export default function ExampleTablePage() {
         <div className="bg-white border-2 border-dashed rounded-xl mx-auto mt-10 p-5">
             <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-bold">Product table</h1>
-                {/* <CreateProductForm /> */}
                 <AddProductDialog/>
             </div>
             <div className="border-2 border-dashed my-2" />
