@@ -30,9 +30,11 @@ const POST = async (request: Request) => {
 
     const items = orderDetailParsed;
     const transID = orderParsed._id.toString();
+    
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : process.env.NGROK_BASE_URL; 
     const embed_data = {
         //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
-        redirecturl: (process.env.NGROK_BASE_URL||`https://23f1-14-226-225-128.ngrok-free.app/`) +orderParsed._id.toString()+"/invoice",
+        redirecturl: (baseUrl||`https://23f1-14-226-225-128.ngrok-free.app/`) +orderParsed._id.toString()+"/invoice",
     };
 
     const order = {
@@ -44,7 +46,7 @@ const POST = async (request: Request) => {
         embed_data: JSON.stringify(embed_data),
         amount: (orderParsed.final_amount).toString(),
         description: `Skincare - Payment for the order #${transID}`,
-        callback_url: (process.env.NGROK_BASE_URL||`https://23f1-14-226-225-128.ngrok-free.app/`)+'api/payment/callback',
+        callback_url: (baseUrl||`https://23f1-14-226-225-128.ngrok-free.app/`)+'api/payment/callback',
         bank_code: '',
         mac: '',
     };
